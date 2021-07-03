@@ -1,0 +1,26 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:pagetreefilter="http://typo3.org/ns/Lemming/PageTreeFilter/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<div class="{f:if(condition: '{isVersion10}', then: 'media')} t3js-media-new-content-element-wizard media-new-content-element-wizard">
+    <a href="#" class="{f:if(condition: '{isVersion10}', else: 'media')} pagetreefilter"
+        data-pagetreefilter="{f:if(condition: '{wizardInformation.filter}', then: '{wizardInformation.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{wizardInformation}\')}')}"
+        data-bs-slide="next">
+
+        <f:if condition="{content}">
+            {content -> f:format.raw()}
+        </f:if>
+        <div class="media-left">
+            {icon -> f:format.raw()}
+        </div>
+        <div class="media-body">
+
+            <strong>{wizardInformation.title -> f:format.htmlspecialchars()}</strong>
+            <br/>
+            {wizardInformation.description -> f:format.nl2br() -> f:format.htmlspecialchars()}
+        </div>
+    </a>
+</div>
+
+</html>

@@ -1,0 +1,29 @@
+{
+    "name": "christophlehmann/pagetreefilter",
+    "type": "typo3-cms-extension",
+    "description": "Filter the Pagetree for records and content elements",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Christoph Lehmann",
+            "role": "Developer",
+            "email": "post@christoplehmann.eu"
+        }
+    ],
+    "require": {
+        "typo3/cms-backend": "^10.4 || ^11"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lemming\\PageTreeFilter\\": "Classes"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "pagetreefilter"
+        }
+    },
+    "replace": {
+        "christophlehmann/pagetreefilter": "*"
+    }
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:pagetreefilter/Resources/Private/Language/locallang.xlf" date="2021-07-04T17:37:11Z" product-name="pagetreefilter">
+		<header/>
+		<body>
+			<trans-unit id="wizard_title" resname="wizard_title">
+				<source>Pagetree Filter</source>
+				<target>Seitenbaum-Filter</target>
+			</trans-unit>
+			<trans-unit id="wizard_description" resname="wizard_description">
+				<source>What are you looking for?</source>
+				<target>Was suchst du?</target>
+			</trans-unit>
+			<trans-unit id="wizard_tab_records" resname="wizard_tab_records">
+				<source>Records</source>
+				<target>Datensätze</target>
+			</trans-unit>
+			<trans-unit id="wizard_error_message" resname="wizard_error_message">
+				<source>Nothing found. Probably the page id was configured incorrectly.</source>
+				<target>Nichts gefunden. Wahrscheinlich ist die Seiten-Id falsch konfiguriert.</target>
+			</trans-unit>
+			<trans-unit id="filter_error" resname="filter_error">
+				<source>Filter erroneous</source>
+				<target>Filter fehlerhaft</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

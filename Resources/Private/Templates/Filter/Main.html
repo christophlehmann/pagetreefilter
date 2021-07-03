@@ -1,0 +1,19 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:if condition="{hasAccess}">
+    <f:then>
+        <p><f:translate key="wizard_description"/></p>
+        <div class="t3-new-content-element-wizard-window">
+            <div id="new-content-element-wizard-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+                <div class="carousel-inner" role="listbox">
+                    <div class="carousel-item active" data-bs-slide="next">
+                        {renderedTabs -> f:format.raw()}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </f:then>
+    <f:else>
+        <p><f:translate key="wizard_error_message"/></p>
+    </f:else>
+</f:if>

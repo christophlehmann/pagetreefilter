@@ -1,0 +1,11 @@
+.pagetreefilter-highlighted {
+    fill: #0078e6 !important;
+    fill-opacity: 0.1;
+    stroke-width: 1px;
+    stroke: #d7d7d7;
+}
+
+.pagetreefilter-highlighted.node-over,
+.pagetreefilter-highlighted.node-selected {
+    fill-opacity: 0.3;
+}

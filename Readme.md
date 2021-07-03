@@ -1,0 +1,49 @@
+
+TYPO3 Extension: Pagetree Filter
+================================
+
+It is able to highlight pages with certain records or content elements in the pagetree. For simplicity it comes with a wizard.
+
+## Examples
+
+* Highlight pages with sys_category records: `table=sys_category`
+* Highlight pages with image content elements: `table=tt_content CType=image`
+* Highlight pages with hidden image content elements: `table=tt_content CType=image hidden=1`
+
+## Screenshots
+
+### Highlight pages with image elements
+
+![Example](https://raw.githubusercontent.com/christophlehmann/pagetreefilter/master/Documentation/Images/filter-example.png)
+
+### The filter wizard
+
+![The Wizard](https://raw.githubusercontent.com/christophlehmann/pagetreefilter/master/Documentation/Images/filter-wizard.png)
+
+## Installation
+
+`composer require christophlehmann/pagetreefilter`
+
+## Configuration
+
+### Enable for non admin users (User TSconfig)
+
+`tx_pagetreefilter.enable = 1`
+
+### ignoreFields (Page TSconfig)
+
+The wizard creates a filter based on `tt_content_defValues`, see `mod.wizards.newContentElement.wizardItems`.
+If you don't like them, then you can ignore them: 
+
+`tx_pagetreefilter.buildFilter.ignoreFields = tx_gridelements_columns`
+
+### PageId
+
+The wizard needs a page id for fetching Page TSconfig in order to gather possible content elements and plugins. This page id is determined by
+
+1. First WebMount in case the user is no admin
+1. Extension configuration: `pageId` (default: `1`)
+
+---
+
+Let the rocket start. Made with ♥ by Christoph Lehmann

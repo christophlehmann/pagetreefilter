@@ -1,0 +1,2 @@
+# cat=Pagetreefilter/; type=int; label=PageId: Fallback page id for fetching TSconfig
+pageId = 1
