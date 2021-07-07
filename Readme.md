@@ -6,9 +6,14 @@ It is able to highlight pages with certain records or content elements in the pa
 
 ## Examples
 
-* Highlight pages with sys_category records: `table=sys_category`
-* Highlight pages with image content elements: `table=tt_content CType=image`
-* Highlight pages with hidden image content elements: `table=tt_content CType=image hidden=1`
+Highlight pages with...
+
+* sys_category records: `table=sys_category`
+* image content elements: `table=tt_content CType=image`
+* hidden image content elements: `table=tt_content CType=image hidden=1`
+* content elements where the elements header starts with rocket: `table=tt_content header=rocket*`
+* content elements where the elements header ends with launch: `table=tt_content header=*launch`
+* content elements where the elements header contains rocketlaunch: `table=tt_content header=*rocketlaunch*`
 
 ## Screenshots
 

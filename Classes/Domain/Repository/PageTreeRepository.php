@@ -67,9 +67,22 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             ->groupBy($field);
 
         foreach($this->filterConstraints as $constraint) {
-            $query->andWhere(
-                $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter($constraint['value']))
-            );
+            if (strpos($constraint['value'], '*') !== false) {
+                $like = str_replace('*', '', $constraint['value']);
+                $parts = explode('*', $constraint['value']);
+                $leftLike = empty($parts[0]) ? '%' : '';
+                $rightLike = empty(array_pop($parts)) ? '%' : '';
+                $query->andWhere(
+                    $queryBuilder->expr()->like(
+                        $constraint['field'],
+                        $queryBuilder->createNamedParameter($leftLike . $queryBuilder->escapeLikeWildcards($like) . $rightLike)
+                    )
+                );
+            } else {
+                $query->andWhere(
+                    $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter($constraint['value']))
+                );
+            }
         }
 
         $rows = $query->execute()->fetchAll();
