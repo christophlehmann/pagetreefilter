@@ -11,6 +11,9 @@ class ConfigurationUtility
     public static function isWizardEnabled(): bool
     {
         $backendUser = self::getBackendUser();
+        if (!$backendUser) {
+            return false;
+        }
         if ($backendUser->isAdmin()) {
             return true;
         }
@@ -35,7 +38,7 @@ class ConfigurationUtility
         return GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('pagetreefilter', 'pageId');
     }
 
-    protected static function getBackendUser(): BackendUserAuthentication
+    protected static function getBackendUser(): ?BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
     }

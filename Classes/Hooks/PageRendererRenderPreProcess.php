@@ -12,9 +12,9 @@ final class PageRendererRenderPreProcess
     public function addRequireJsModule(array $params, PageRenderer $pageRenderer): void
     {
         if (
-            ConfigurationUtility::isWizardEnabled() &&
             ($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
             && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()
+            && ConfigurationUtility::isWizardEnabled()
         ) {
             $pageRenderer->loadRequireJsModule('TYPO3/CMS/Pagetreefilter/PageTreeFilter');
         }
