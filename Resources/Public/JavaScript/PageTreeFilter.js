@@ -1,7 +1,4 @@
-require([
-    'TYPO3/CMS/Backend/MultiStepWizard',
-    'TYPO3/CMS/Core/Ajax/AjaxRequest',
-], function (MultiStepWizard, AjaxRequest) {
+require([], function () {
 
     function initializeFilter() {
         let toolbar = document.querySelectorAll('#typo3-pagetree .svg-toolbar__menu').item(0);
@@ -15,12 +12,26 @@ require([
         let buttonGroup = toolbar.querySelectorAll('.btn-group').item(0)
         if (buttonGroup !== null) {
             // TYPO3 10
-            buttonGroup.insertAdjacentHTML('beforeend', '<div class="x-btn btn btn-default btn-sm x-btn-noicon"><button class="svg-toolbar__btn" id="pagetreefilter" title="Filter Wizard"><span class="icon icon-size-small icon-state-default"><span class="icon-markup">' + icon + '</span></span></button></div>');
+            buttonGroup.insertAdjacentHTML('beforeend', '' +
+                '<div class="x-btn btn btn-default btn-sm x-btn-noicon">' +
+                    '<button class="svg-toolbar__btn" id="pagetreefilter" title="' + TYPO3.lang.pagetreefilter_button_title + '">' +
+                    '<span class="icon icon-size-small icon-state-default">' +
+                        '<span class="icon-markup">' + icon + '</span>' +
+                    '</span>' +
+                    '</button>' +
+                '</div>'
+            );
         } else {
-            toolbar.insertAdjacentHTML('beforeend', '<button id="pagetreefilter" class="btn btn-default btn-borderless btn-sm" title="Filter Wizard"><span class="icon icon-size-small icon-state-default"><span class="icon-markup">' + icon + '</span></span></button>');
+            toolbar.insertAdjacentHTML('beforeend', '' +
+                '<button id="pagetreefilter" class="btn btn-default btn-borderless btn-sm" title="' + TYPO3.lang.pagetreefilter_button_title + '">' +
+                    '<span class="icon icon-size-small icon-state-default">' +
+                        '<span class="icon-markup">' + icon + '</span>' +
+                    '</span>' +
+                '</button>'
+            );
         }
 
-        document.querySelector('#pagetreefilter').onclick = function() { showSubMenu(); openFilter(); }
+        document.querySelector('#pagetreefilter').onclick = function() { showSubMenu(); openWizard(); }
     }
 
     // TYPO3 10
@@ -32,31 +43,23 @@ require([
         }
     }
 
-    function openFilter()
+    function openWizard()
     {
-        (new AjaxRequest(TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter))
-            .get({cache: 'no-cache'})
-            .then((response) => response.resolve())
-            .then((json) => {
-                wizard = new MultiStepWizard.constructor();
-                wizard.addSlide(
-                    'step-1',
-                    json['title'],
-                    json['html'],
-                    'info',
-                    null,
-                    function() {
-                        links = document.querySelectorAll('a.pagetreefilter');
-                        links.forEach((button) => {
-                            button.addEventListener('click', () => {
-                                applyFilter(button.getAttribute('data-pagetreefilter'));
-                                wizard.dismiss();
-                            });
-                        });
-                    }
-                );
-                wizard.show();
-            })
+        TYPO3.Modal.loadUrl(
+            TYPO3.lang.pagetreefilter_wizard_title,
+            TYPO3.Severity.info,
+            [],
+            TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
+            function () {
+                let links = document.querySelectorAll('a.pagetreefilter');
+                links.forEach((button) => {
+                    button.addEventListener('click', () => {
+                        applyFilter(button.getAttribute('data-pagetreefilter'));
+                        TYPO3.Modal.dismiss()
+                    });
+                });
+            }
+        )
     }
 
     function applyFilter(filter)
@@ -71,7 +74,6 @@ require([
             TYPO3.Backend.NavigationContainer.PageTree.instance.searchQuery = filter;
             TYPO3.Backend.NavigationContainer.PageTree.instance.filterTree();
         }
-
     }
 
     initializeFilter();

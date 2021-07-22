@@ -23,6 +23,10 @@
 				<source>Filter erroneous</source>
 				<target>Filter fehlerhaft</target>
 			</trans-unit>
+			<trans-unit id="filter_button_title" resname="filter_button_title">
+				<source>Filter tree for content elements and records</source>
+				<target>Baum nach Inhaltselementen und Datensätzen filtern</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

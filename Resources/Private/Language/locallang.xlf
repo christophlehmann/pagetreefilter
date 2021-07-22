@@ -18,6 +18,9 @@
 			<trans-unit id="filter_error" resname="filter_error">
 				<source>Filter erroneous</source>
 			</trans-unit>
+			<trans-unit id="filter_button_title" resname="filter_button_title">
+				<source>Filter tree for content elements and records</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
