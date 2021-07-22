@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Lemming\PageTreeFilter\Controller;
 
@@ -12,7 +13,7 @@ class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
     public function filterDataAction(ServerRequestInterface $request): ResponseInterface
     {
         $jsonResponse = parent::filterDataAction($request);
-        $elements = json_decode($jsonResponse->getBody(), true);
+        $elements = json_decode($jsonResponse->getBody()->getContents(), true);
 
         if (PageTreeRepository::$filterErrorneous === true) {
             $rootElement = array_pop($elements);
