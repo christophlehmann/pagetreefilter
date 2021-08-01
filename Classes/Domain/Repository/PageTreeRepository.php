@@ -80,9 +80,18 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
                     )
                 );
             } else {
-                $query->andWhere(
-                    $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter($constraint['value']))
-                );
+                if (empty($constraint['value']) && $this->isNullableColumn($queryBuilder, $constraint['field'])) {
+                    $query->andWhere(
+                        $queryBuilder->expr()->orX(
+                            $queryBuilder->expr()->isNull($constraint['field']),
+                            $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter('')),
+                        )
+                    );
+                } else {
+                    $query->andWhere(
+                        $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter($constraint['value']))
+                    );
+                }
             }
         }
 
@@ -140,6 +149,12 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
                 self::$filterErrorneous = true;
             }
         }
+    }
+
+    protected function isNullableColumn(QueryBuilder $queryBuilder, string $column): bool
+    {
+        $schemaManager = $queryBuilder->getConnection()->getSchemaManager();
+        return !$schemaManager->listTableDetails($this->filterTable)->getColumn($column)->getNotnull();
     }
 
     protected function getBackendUser(): BackendUserAuthentication
