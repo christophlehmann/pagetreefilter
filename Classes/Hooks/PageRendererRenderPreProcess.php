@@ -15,6 +15,7 @@ final class PageRendererRenderPreProcess
     {
         if (
             ($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
+            && !is_null($GLOBALS['TYPO3_REQUEST']->getAttribute('applicationType'))
             && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()
             && ConfigurationUtility::isWizardEnabled()
         ) {
