@@ -19,7 +19,7 @@ class ConfigurationUtility
             return true;
         }
 
-        $isEnabledForNormalUser = $backendUser->getTSConfig()['tx_pagetreefilter.']['enable'] ?? 0 == 1;
+        $isEnabledForNormalUser = (bool)($backendUser->getTSConfig()['tx_pagetreefilter.']['enable'] ?? false);
 
         return $isEnabledForNormalUser;
     }
