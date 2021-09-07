@@ -84,7 +84,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
                     $query->andWhere(
                         $queryBuilder->expr()->orX(
                             $queryBuilder->expr()->isNull($constraint['field']),
-                            $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter('')),
+                            $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter(''))
                         )
                     );
                 } else {
