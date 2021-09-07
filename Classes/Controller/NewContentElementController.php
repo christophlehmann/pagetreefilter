@@ -57,7 +57,6 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
                     'params' => '', // if missing it leads to an exception
                     'filter' => sprintf('table=%s', $tableName)
                 ];
-                $tables[$tableName] = $this->getLanguageService()->sL($tableConfiguration['ctrl']['title']);
             }
         }
 
