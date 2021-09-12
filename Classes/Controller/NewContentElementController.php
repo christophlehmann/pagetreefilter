@@ -27,6 +27,28 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
     {
         $wizards = parent::getWizards();
         $wizards = $this->appendRecords($wizards);
+        $wizards = $this->appendPageTypes($wizards);
+
+        return $wizards;
+    }
+
+    protected function appendPageTypes(array $wizards): array
+    {
+        $wizards['pagetypes']['header'] = $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:be_groups.pagetypes_select');
+        $backendUser = $this->getBackendUser();
+        foreach ($GLOBALS['TCA']['pages']['columns']['doktype']['config']['items'] as $no => $pageTypeConfiguration) {
+            if ($pageTypeConfiguration[1] === '--div--') {
+                continue;
+            }
+            if ($backendUser->isAdmin() || $backendUser->check('pagetypes_select', $pageTypeConfiguration[1])) {
+                $wizards['pagetypes_' . $no] = [
+                    'title' => $this->getLanguageService()->sL($pageTypeConfiguration[0]),
+                    'iconIdentifier' => $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$pageTypeConfiguration[1]],
+                    'params' => '', // if missing it leads to an exception
+                    'filter' => sprintf('table=pages doktype=%d', $pageTypeConfiguration[1])
+                ];
+            }
+        }
 
         return $wizards;
     }
