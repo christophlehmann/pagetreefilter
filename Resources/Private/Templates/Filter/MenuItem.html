@@ -4,7 +4,7 @@
     data-namespace-typo3-fluid="true">
 
 <div class="{f:if(condition: '{isVersion10}', then: 'media')} t3js-media-new-content-element-wizard media-new-content-element-wizard">
-    <a href="#" class="{f:if(condition: '{isVersion10}', else: 'media')} pagetreefilter"
+    <a href="#" class="pagetreefilter{f:if(condition: '{isVersion10}', else: ' media')}{f:if(condition: '{wizardInformation.disabled}', then: ' disabled')}"
         data-pagetreefilter="{f:if(condition: '{wizardInformation.filter}', then: '{wizardInformation.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{wizardInformation}\')}')}"
         data-bs-slide="next">
 
