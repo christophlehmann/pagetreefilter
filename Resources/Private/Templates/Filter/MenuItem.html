@@ -1,26 +1,25 @@
-<html
-    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:pagetreefilter="http://typo3.org/ns/Lemming/PageTreeFilter/ViewHelpers"
-    data-namespace-typo3-fluid="true">
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true"
+      xmlns:pagetreefilter="http://typo3.org/ns/Lemming/PageTreeFilter/ViewHelpers">
 
-<div class="{f:if(condition: '{isVersion10}', then: 'media')} t3js-media-new-content-element-wizard media-new-content-element-wizard">
-    <a href="#" class="pagetreefilter{f:if(condition: '{isVersion10}', else: ' media')}{f:if(condition: '{wizardInformation.disabled}', then: ' disabled')}"
-        data-pagetreefilter="{f:if(condition: '{wizardInformation.filter}', then: '{wizardInformation.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{wizardInformation}\')}')}"
-        data-bs-slide="next">
-
-        <f:if condition="{content}">
-            {content -> f:format.raw()}
-        </f:if>
-        <div class="media-left">
-            {icon -> f:format.raw()}
-        </div>
-        <div class="media-body">
-
-            <strong>{wizardInformation.title -> f:format.htmlspecialchars()}</strong>
-            <br/>
-            {wizardInformation.description -> f:format.nl2br() -> f:format.htmlspecialchars()}
-        </div>
+<div class="t3js-media-new-content-element-wizard media-new-content-element-wizard">
+    <a class="pagetreefilter btn btn-link media p-0 text-start {f:if(condition: '{wizardInformation.disabled}', then: ' disabled')}"
+       data-pagetreefilter="{f:if(condition: '{wizardInformation.filter}', then: '{wizardInformation.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{wizardInformation}\')}')}">
+        <f:render section="itemContent" arguments="{_all}" />
     </a>
 </div>
+
+<f:section name="itemContent">
+    <f:if condition="{content}">
+        {content -> f:format.raw()}
+    </f:if>
+    <div class="media-left">
+        {icon -> f:format.raw()}
+    </div>
+    <div class="media-body">
+        <strong>{wizardInformation.title -> f:format.htmlspecialchars()}</strong>
+        <br/>
+        {wizardInformation.description -> f:format.nl2br() -> f:format.htmlspecialchars()}
+    </div>
+</f:section>
 
 </html>

@@ -31,26 +31,17 @@ require([], function () {
             );
         }
 
-        document.querySelector('#pagetreefilter').onclick = function() { showSubMenu(); openWizard(); }
-    }
-
-    // TYPO3 10
-    function showSubMenu()
-    {
-        defaultFilterButton = document.querySelector('.svg-toolbar__menu div[data-tree-show-submenu="filter"]');
-        if (defaultFilterButton !== null) {
-            defaultFilterButton.click();
-        }
+        document.querySelector('#pagetreefilter').onclick = function() { openWizard(); }
     }
 
     function openWizard()
     {
-        TYPO3.Modal.loadUrl(
-            TYPO3.lang.pagetreefilter_wizard_title,
-            TYPO3.Severity.info,
-            [],
-            TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
-            function () {
+        TYPO3.Modal.advanced({
+            size: 'medium',
+            type: 'ajax',
+            title: TYPO3.lang.pagetreefilter_wizard_title,
+            severity: TYPO3.Severity.info,
+            ajaxCallback: function () {
                 let links = document.querySelectorAll('a.pagetreefilter');
                 links.forEach((button) => {
                     button.addEventListener('click', () => {
@@ -58,8 +49,10 @@ require([], function () {
                         TYPO3.Modal.dismiss()
                     });
                 });
-            }
-        )
+            },
+            content: TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
+            additionalCssClasses: ['pagetreefilter-wizard']
+        });
     }
 
     function applyFilter(filter)

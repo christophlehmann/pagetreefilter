@@ -9,3 +9,8 @@
 .pagetreefilter-highlighted.node-selected {
     fill-opacity: 0.3;
 }
+
+.pagetreefilter-wizard .modal-body {
+    background-color: #fafafa;
+    padding: 0;
+}

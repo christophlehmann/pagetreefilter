@@ -17,7 +17,7 @@ class FilterController {
             /** @var NewContentElementController $controller */
             $controller = GeneralUtility::makeInstance(NewContentElementController::class);
             /** @var HtmlResponse $htmlResponse */
-            $htmlResponse = $controller->wizardAction($request);
+            $htmlResponse = $controller->handleRequest($request);
 
             return $htmlResponse;
         }

@@ -4,26 +4,23 @@ declare(strict_types=1);
 namespace Lemming\PageTreeFilter\Controller;
 
 use Lemming\PageTreeFilter\Utility\ConfigurationUtility;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController
 {
-    protected function init(ServerRequestInterface $request)
+    public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         $queryParameters = $request->getQueryParams();
         $queryParameters['id'] = ConfigurationUtility::getPageId();
         $requestWithPageId = $request->withQueryParams($queryParameters);
-        parent::init($requestWithPageId);
 
-        $this->menuItemView->assignMultiple([
-            'isVersion10' => version_compare(VersionNumberUtility::getNumericTypo3Version(), '11', '<')
-        ]);
+        return parent::handleRequest($requestWithPageId);
     }
 
     public function getWizards(): array
@@ -49,7 +46,6 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
                 $wizards['pagetypes_' . $no] = [
                     'title' => $this->getLanguageService()->sL($pageTypeConfiguration[0]),
                     'iconIdentifier' => $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$pageTypeConfiguration[1]],
-                    'params' => '', // if missing it leads to an exception
                     'filter' => sprintf('table=pages doktype=%d', $pageTypeConfiguration[1]),
                     'disabled' => !in_array($pageTypeConfiguration[1], $usedPageTypes)
                 ];
@@ -82,7 +78,6 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
                 $wizards['records_' . $tableName] = [
                     'title' => $this->getLanguageService()->sL($tableConfiguration['ctrl']['title']),
                     'iconIdentifier' => $iconIdentifier,
-                    'params' => '', // if missing it leads to an exception
                     'filter' => sprintf('table=%s', $tableName),
                     'disabled' => $this->areRecordsInTable($tableName) ? false : true
                 ];
@@ -161,12 +156,11 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
         return $oneRecord !== false;
     }
 
-    protected function getFluidTemplateObject(string $filename = 'Main.html'): StandaloneView
+    protected function getFluidTemplateObject(string $templateName): StandaloneView
     {
         /** @var StandaloneView $view */
         $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:pagetreefilter/Resources/Private/Templates/Filter/' . $filename));
-        $view->getRequest()->setControllerExtensionName('Pagetreefilter');
+        $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:pagetreefilter/Resources/Private/Templates/Filter/' . $templateName . '.html'));
 
         return $view;
     }
