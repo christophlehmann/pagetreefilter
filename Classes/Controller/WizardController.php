@@ -10,6 +10,7 @@ use TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -17,11 +18,15 @@ class WizardController extends NewContentElementController
 {
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $queryParameters = $request->getQueryParams();
-        $queryParameters['id'] = ConfigurationUtility::getPageId();
-        $requestWithPageId = $request->withQueryParams($queryParameters);
+        if (ConfigurationUtility::isWizardEnabled()) {
+            $queryParameters = $request->getQueryParams();
+            $queryParameters['id'] = ConfigurationUtility::getPageId();
+            $requestWithPageId = $request->withQueryParams($queryParameters);
 
-        return parent::handleRequest($requestWithPageId);
+            return parent::handleRequest($requestWithPageId);
+        }
+
+        return new HtmlResponse('Error', 500);
     }
 
     public function getWizards(): array
