@@ -6,13 +6,14 @@ namespace Lemming\PageTreeFilter\Controller;
 use Lemming\PageTreeFilter\Utility\ConfigurationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
-class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController
+class WizardController extends NewContentElementController
 {
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {

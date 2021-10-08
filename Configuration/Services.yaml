@@ -7,5 +7,5 @@ services:
   Lemming\PageTreeFilter\:
     resource: '../Classes/*'
 
-  Lemming\PageTreeFilter\Controller\NewContentElementController:
+  Lemming\PageTreeFilter\Controller\WizardController:
     public: true

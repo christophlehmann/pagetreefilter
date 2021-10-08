@@ -14,8 +14,8 @@ class FilterController {
     public function fetchFilterAction(ServerRequestInterface $request): ResponseInterface
     {
         if (ConfigurationUtility::isWizardEnabled()) {
-            /** @var NewContentElementController $controller */
-            $controller = GeneralUtility::makeInstance(NewContentElementController::class);
+            /** @var WizardController $controller */
+            $controller = GeneralUtility::makeInstance(WizardController::class);
             /** @var HtmlResponse $htmlResponse */
             $htmlResponse = $controller->handleRequest($request);
 
