@@ -1,0 +1,17 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\|int\\.$#"
+			count: 1
+			path: Classes/Controller/WizardController.php
+
+		-
+			message: "#^Cannot call method fetchFirstColumn\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\|int\\.$#"
+			count: 1
+			path: Classes/Controller/WizardController.php
+
+		-
+			message: "#^Cannot call method fetchOne\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\|int\\.$#"
+			count: 1
+			path: Classes/Controller/WizardController.php
+

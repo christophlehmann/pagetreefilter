@@ -1,0 +1,3 @@
+.Build
+Tests/Build/.phpunit.result.cache
+composer.lock

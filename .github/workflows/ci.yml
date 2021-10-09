@@ -1,0 +1,48 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        env:
+          - { php: 7.4 }
+
+    env: ${{ matrix.env }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up PHP Version
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.env.php }}
+          tools: composer:v2
+
+      - name: Start MySQL
+        run: sudo /etc/init.d/mysql start
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install composer dependencies
+        run: |
+          composer install --no-progress
+
+      - name: PHPStan
+        run: composer phpstan
+
+      - name: Functional tests
+        run: |
+          export typo3DatabaseName="typo3";
+          export typo3DatabaseHost="127.0.0.1";
+          export typo3DatabaseUsername="root";
+          export typo3DatabasePassword="root";
+          ./Tests/run-tests.sh

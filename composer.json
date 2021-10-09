@@ -8,23 +8,57 @@
         {
             "name": "Christoph Lehmann",
             "role": "Developer",
-            "email": "post@christoplehmann.eu"
+            "email": "post@christophlehmann.eu"
         }
     ],
     "require": {
-        "typo3/cms-backend": "^11.5"
+        "typo3/cms-backend": "^11.5",
+        "typo3/cms-core": "^11.5",
+        "typo3/cms-fluid": "^11.5"
+    },
+    "scripts": {
+        "run-tests": [
+            "@phpstan",
+            "@phpunit"
+        ],
+        "phpstan": [
+            "phpstan analyse -c phpstan.neon"
+        ],
+        "phpunit": [
+            "./Tests/run-tests.sh"
+        ],
+        "post-autoload-dump": [
+            "mkdir -p .Build/public/typo3conf/ext/",
+            "[ -L .Build/public/typo3conf/ext/pagetreefilter ] || ln -snvf ../../../../. .Build/public/typo3conf/ext/pagetreefilter"
+        ]
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
     },
     "autoload": {
         "psr-4": {
             "Lemming\\PageTreeFilter\\": "Classes"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Lemming\\PageTreeFilter\\Tests\\": "Tests"
+        }
+    },
     "extra": {
         "typo3/cms": {
-            "extension-key": "pagetreefilter"
+            "extension-key": "pagetreefilter",
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "app-dir": ".Build",
+            "web-dir": ".Build/public"
         }
     },
     "replace": {
         "christophlehmann/pagetreefilter": "*"
+    },
+    "require-dev": {
+        "friendsoftypo3/phpstan-typo3": "~0.8",
+        "typo3/testing-framework": "~6.0"
     }
 }
