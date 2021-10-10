@@ -97,12 +97,17 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $pageTypes = $queryBuilder
+        $rows = $queryBuilder
             ->select('doktype')
             ->from('pages')
             ->groupBy('doktype')
             ->execute()
-            ->fetchFirstColumn();
+            ->fetchAll();
+
+        $pageTypes = [];
+        foreach ($rows as $row) {
+            $pageTypes[] = $row['doktype'];
+        }
 
         return $pageTypes;
     }
@@ -117,7 +122,7 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
             ->from('tt_content')
             ->groupBy('CType', 'list_type')
             ->execute()
-            ->fetchAllAssociative();
+            ->fetchAll();
 
         $generalPluginEnabled = false;
         foreach ($contentTypes as $no => $contentTypeCombination) {
@@ -152,13 +157,13 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($tableName);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $oneRecord = $queryBuilder->select('*')
+        $rows = $queryBuilder->select('*')
             ->from($tableName)
             ->setMaxResults(1)
             ->execute()
-            ->fetchOne();
+            ->fetchAll();
 
-        return $oneRecord !== false;
+        return count($rows) > 0;
     }
 
     protected function getFluidTemplateObject(string $filename = 'Main.html'): StandaloneView
