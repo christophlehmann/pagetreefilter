@@ -66,11 +66,11 @@ class WizardController extends NewContentElementController
         $wizards['records']['header'] = $this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_tab_records');
         $backendUser = $this->getBackendUser();
         foreach($GLOBALS['TCA'] as $tableName => $tableConfiguration) {
-            if ((bool)$tableConfiguration['ctrl']['hideTable'] === false &&
+            if (($tableConfiguration['ctrl']['hideTable'] ?? false) === false &&
                 (
                     $backendUser->isAdmin() ||
                     (
-                        (bool)$tableConfiguration['ctrl']['adminOnly'] === false &&
+                        ($tableConfiguration['ctrl']['adminOnly'] ?? false) === false &&
                         $backendUser->check('tables_select', $tableName)
                     )
                 )
