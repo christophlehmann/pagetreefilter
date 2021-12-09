@@ -121,15 +121,9 @@ class WizardController extends NewContentElementController
                     )
                 )
             ) {
-                if (isset($tableConfiguration['ctrl']['typeicon_classes']['default'])) {
-                    $iconIdentifier = $tableConfiguration['ctrl']['typeicon_classes']['default'];
-                } else {
-                    $iconIdentifier = sprintf('tcarecords-%s-default', $tableName);
-                }
-
                 $wizards['records_' . $tableName] = [
                     'title' => $this->getLanguageService()->sL($tableConfiguration['ctrl']['title']),
-                    'iconIdentifier' => $iconIdentifier,
+                    'iconIdentifier' => $this->iconFactory->mapRecordTypeToIconIdentifier($tableName, []),
                     'filter' => sprintf('table=%s', $tableName),
                     'disabled' => $this->areRecordsInTable($tableName) ? false : true
                 ];
