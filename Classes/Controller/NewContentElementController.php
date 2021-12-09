@@ -8,12 +8,20 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
+use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
+use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController
 {
+    /**
+     * @var IconRegistry
+     */
+    protected $iconRegistry;
+
     protected function init(ServerRequestInterface $request)
     {
         $queryParameters = $request->getQueryParams();
@@ -29,9 +37,47 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
     public function getWizards(): array
     {
         $wizards = parent::getWizards();
+        $wizards = $this->appendPluginsHavingNoWizardConfiguration($wizards);
+        ksort($wizards);
         $wizards = $this->disableWizardsHavingNoResults($wizards);
         $wizards = $this->appendRecords($wizards);
         $wizards = $this->appendPageTypes($wizards);
+
+        return $wizards;
+    }
+
+    protected function appendPluginsHavingNoWizardConfiguration($wizards)
+    {
+        foreach ($GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['items'] ?? [] as $pluginConfiguration) {
+            $listType = $pluginConfiguration[1];
+
+            if (empty($listType)) {
+                continue;
+            }
+
+            $authMode = $GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['authMode'];
+            if (!$this->getBackendUser()->checkAuthMode('tt_content', 'list_type', $listType, $authMode)) {
+                continue;
+            }
+
+            $newDefaultValues = [
+                'CType' => 'list',
+                'list_type' => $listType
+            ];
+            $availableDefaultValues = array_map(function ($wizard) {
+                return $wizard['tt_content_defValues'];
+            }, $wizards);
+            if (in_array($newDefaultValues, $availableDefaultValues)) {
+                continue;
+            }
+
+            $iconIdentifier = !empty($pluginConfiguration[2]) ? $this->createIconIdentifier($pluginConfiguration[2]) : '';
+            $wizards['plugins_' . $listType] = [
+                'title' => $this->getLanguageService()->sL($pluginConfiguration[0]),
+                'iconIdentifier' => $iconIdentifier,
+                'tt_content_defValues' => $newDefaultValues
+            ];
+        }
 
         return $wizards;
     }
@@ -174,5 +220,27 @@ class NewContentElementController extends \TYPO3\CMS\Backend\Controller\ContentE
         $view->getRequest()->setControllerExtensionName('Pagetreefilter');
 
         return $view;
+    }
+
+    protected function createIconIdentifier($iconPath = ''): ?string
+    {
+        if (!empty($iconPath)) {
+            $iconIdentifier = 'tx-pagetreefilter-plugin-' . sha1($iconPath);
+            $provider = str_ends_with(strtolower($iconPath), '.svg') ? SvgIconProvider::class : BitmapIconProvider::class;
+            $this->iconRegistry->registerIcon(
+                $iconIdentifier,
+                $provider,
+                ['source' => $iconPath]
+            );
+
+            return $iconIdentifier;
+        }
+
+        return null;
+    }
+
+    public function injectIconRegistry(IconRegistry $iconRegistry)
+    {
+        $this->iconRegistry = $iconRegistry;
     }
 }
