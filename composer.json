@@ -26,5 +26,10 @@
     },
     "replace": {
         "christophlehmann/pagetreefilter": "*"
+    },
+    "scripts": {
+        "prepare-release": [
+            "rm -rf .github"
+        ]
     }
 }
