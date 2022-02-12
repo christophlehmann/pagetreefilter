@@ -68,7 +68,7 @@ class WizardController extends NewContentElementController
                 'list_type' => $listType
             ];
             $availableDefaultValues = array_map(function ($wizard) {
-                return $wizard['tt_content_defValues'];
+                return $wizard['tt_content_defValues'] ?? [];
             }, $wizards);
             if (in_array($newDefaultValues, $availableDefaultValues)) {
                 continue;
