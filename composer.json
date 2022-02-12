@@ -2,7 +2,7 @@
     "name": "christophlehmann/pagetreefilter",
     "type": "typo3-cms-extension",
     "description": "Filter the Pagetree for records and content elements. For simplicity it comes with a wizard.",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "homepage": "https://github.com/christophlehmann/pagetreefilter",
     "authors": [
         {
@@ -23,8 +23,5 @@
         "typo3/cms": {
             "extension-key": "pagetreefilter"
         }
-    },
-    "replace": {
-        "christophlehmann/pagetreefilter": "*"
     }
 }
