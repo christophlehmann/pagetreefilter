@@ -26,6 +26,10 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         'tt_content:CType',
         'tt_content:list_type',
     ];
+    // allowed fields, regardless of table
+    protected const ALLOWED_FIELDS = [
+        'uid',
+    ];
 
     public function fetchFilteredTree(string $searchFilter, array $allowedMountPointPageIds, string $additionalWhereClause): array
     {
@@ -136,9 +140,21 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         if (!$backendUser->isAdmin() && !$backendUser->check('tables_select', $this->filterTable)) {
             self::$filterErrorneous = true;
         }
+        $connection = $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($this->filterTable);
         foreach($this->filterConstraints as $constraint) {
             if (!isset($GLOBALS['TCA'][$this->filterTable]['columns'][$constraint['field']])) {
-                self::$filterErrorneous = true;
+                // only if admin or field in ALLOWED_FIELDS: field can also be used if not in TCA, but exists in table
+                if (($backendUser->isAdmin() || in_array($constraint['field'], self::ALLOWED_FIELDS))
+                    && in_array($constraint['field'], array_keys($connection->getSchemaManager()->listTableColumns($this->filterTable)))
+                ) {
+                    // all good for this constraint, keep going
+                    continue;
+                } else {
+                    self::$filterErrorneous = true;
+                    // filter error - no need to check further
+                    return;
+                }
             }
             $tableField = $this->filterTable . ':' . $constraint['field'];
             if (
@@ -147,6 +163,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
                 !$backendUser->check('non_exclude_fields', $tableField)
             ) {
                 self::$filterErrorneous = true;
+                return;
             }
         }
     }
