@@ -50,17 +50,22 @@ require([], function () {
         type: 'ajax',
         title: TYPO3.lang.pagetreefilter_wizard_title,
         severity: TYPO3.Severity.info,
-        ajaxCallback: function () {
-          let links = document.querySelectorAll('a.pagetreefilter');
-          links.forEach((button) => {
-            button.addEventListener('click', () => {
-              applyFilter(button.getAttribute('data-pagetreefilter'));
-              TYPO3.Modal.dismiss()
-            });
-          });
-        },
         content: TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
         additionalCssClasses: ['pagetreefilter-wizard']
+      }).on('modal-loaded', () => {
+        initButtons();
+      }).on('shown.bs.modal', () => {
+        initButtons();
+      });
+    }
+
+    function initButtons() {
+      let links = document.querySelectorAll('a.pagetreefilter');
+      links.forEach((button) => {
+        button.addEventListener('click', () => {
+          applyFilter(button.getAttribute('data-pagetreefilter'));
+          TYPO3.Modal.dismiss()
+        });
       });
     }
 
