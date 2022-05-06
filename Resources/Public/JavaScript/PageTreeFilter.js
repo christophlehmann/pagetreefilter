@@ -35,10 +35,48 @@ require([], function () {
                         TYPO3.Modal.dismiss()
                     });
                 });
+                toggleHideUnusedElements();
+                document.querySelector('#pagetreefilterhideunused').addEventListener('click', (event) => {
+                    toggleHideUnusedElements()
+                });
             },
             content: TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
             additionalCssClasses: ['pagetreefilter-wizard']
         });
+    }
+
+    function toggleHideUnusedElements()
+    {
+        const wizard = document.querySelector('.pagetreefilter-wizard');
+        const isHidden = wizard.querySelector('.hide');
+        if (!isHidden) {
+            wizard.querySelectorAll('a.nav-link').forEach(function (tab) {
+                const tabContentIdentifier = tab.getAttribute('aria-controls');
+
+                wizard.querySelectorAll('a.pagetreefilter.disabled').forEach(function(item) {
+                    item.parentNode.classList.add('hide');
+                })
+
+                const hasVisibleItems = wizard.querySelector('#' + tabContentIdentifier + ' a.pagetreefilter:not(.disabled)');
+                if (!hasVisibleItems) {
+                    tab.classList.add('hide');
+                }
+            });
+
+            const activeTabIsHidden = wizard.querySelector('a.nav-link.active.hide');
+            if (activeTabIsHidden) {
+               wizard.querySelectorAll('.active').forEach(function (activeItem) {
+                   activeItem.classList.remove('active');
+               });
+               const firstNonHiddenTab = wizard.querySelector('a.nav-link:not(.hide)');
+               firstNonHiddenTab.classList.add('active');
+               wizard.querySelector('#' + firstNonHiddenTab.getAttribute('aria-controls')).classList.add('active');
+            }
+        } else {
+            wizard.querySelectorAll('.hide').forEach(function (hiddenItem) {
+                hiddenItem.classList.remove('hide');
+            });
+        }
     }
 
     function applyFilter(filter)
