@@ -39,6 +39,15 @@ class WizardController extends NewContentElementController
         return new HtmlResponse('Error', 500);
     }
 
+    public function wizardAction(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!$this->id || $this->pageInfo === []) {
+            return new HtmlResponse($this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_error_message'));
+        }
+
+        return parent::wizardAction($request);
+    }
+
     public function getWizards(): array
     {
         $this->disableContentDefenderHook();

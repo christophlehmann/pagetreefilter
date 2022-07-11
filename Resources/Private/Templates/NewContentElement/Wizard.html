@@ -1,0 +1,63 @@
+<html
+        xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+        data-namespace-typo3-fluid="true"
+>
+
+<f:be.pageRenderer
+        includeJavaScriptModules="{
+        0: '@typo3/backend/tabs.js'
+    }"
+/>
+
+<div class="t3-new-content-element-wizard-window">
+    <div class="t3-new-content-element-wizard-inner">
+        <div class="container-fluid mt-3">
+            <div class="form-wizards-element">
+                <div class="form-check form-check-type-icon-toggle">
+                    <input type="checkbox" class="form-check-input"
+                           id="pagetreefilterhideunused" checked="checked">
+                    <label class="form-check-label" for="pagetreefilterhideunused">
+                        <span class="form-check-label-icon">
+                            <span class="form-check-label-icon-checked">
+                                <core:icon identifier="actions-check" alternativeMarkupIdentifier="inline" />
+                            </span>
+                            <span class="form-check-label-icon-unchecked">
+                                <core:icon identifier="empty-empty" alternativeMarkupIdentifier="inline" />
+                            </span>
+                        </span>
+                        <span class="form-check-label-text">
+                            <f:translate key="wizard_hide_unused_elements" extensionName="pagetreefilter"/>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel">
+            <ul class="nav nav-tabs t3js-tabs" role="tablist" id="tabs-{tabsMenuId}" data-store-last-tab="1">
+                <f:for each="{tabsMenuItems}" as="item" iteration="iteration">
+                    <li role="presentation" class="t3js-tabmenu-item nav-item">
+                        <a href="#{tabsMenuId}-{iteration.cycle}" class="nav-link {f:if(condition: '{iteration.cycle} == 1', then: ' active')}" aria-controls="{tabsMenuId}-{iteration.cycle}" role="tab" data-bs-toggle="tab">
+                            {item.label}
+                        </a>
+                    </li>
+                </f:for>
+            </ul>
+            <div class="tab-content">
+                <f:for each="{tabsMenuItems}" as="item" iteration="iteration">
+                    <div role="tabpanel" class="tab-pane{f:if(condition: '{iteration.cycle} == 1', then: ' active')}" id="{tabsMenuId}-{iteration.cycle}">
+                        <div class="panel panel-tab">
+                            <div class="panel-body">
+                                <f:for each="{item.contentItems}" as="contentItem">
+                                    <f:render partial="NewContentElement/MenuItem" arguments="{item: contentItem}" />
+                                </f:for>
+                            </div>
+                        </div>
+                    </div>
+                </f:for>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

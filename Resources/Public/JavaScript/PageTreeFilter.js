@@ -28,7 +28,7 @@ require([], function () {
             title: TYPO3.lang.pagetreefilter_wizard_title,
             severity: TYPO3.Severity.info,
             ajaxCallback: function () {
-                let links = document.querySelectorAll('a.pagetreefilter');
+                let links = document.querySelectorAll('.pagetreefilter-link');
                 links.forEach((button) => {
                     button.addEventListener('click', () => {
                         applyFilter(button.getAttribute('data-pagetreefilter'));
@@ -53,11 +53,11 @@ require([], function () {
             wizard.querySelectorAll('a.nav-link').forEach(function (tab) {
                 const tabContentIdentifier = tab.getAttribute('aria-controls');
 
-                wizard.querySelectorAll('a.pagetreefilter.disabled').forEach(function(item) {
+                wizard.querySelectorAll('.pagetreefilter-link.disabled').forEach(function(item) {
                     item.parentNode.classList.add('hide');
                 })
 
-                const hasVisibleItems = wizard.querySelector('#' + tabContentIdentifier + ' a.pagetreefilter:not(.disabled)');
+                const hasVisibleItems = wizard.querySelector('#' + tabContentIdentifier + ' .pagetreefilter-link:not(.disabled)');
                 if (!hasVisibleItems) {
                     tab.classList.add('hide');
                 }
