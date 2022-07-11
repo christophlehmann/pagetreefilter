@@ -2,7 +2,7 @@
       xmlns:pagetreefilter="http://typo3.org/ns/Lemming/PageTreeFilter/ViewHelpers">
 
 <div class="t3js-media-new-content-element-wizard media-new-content-element-wizard">
-    <a class="pagetreefilter btn btn-link media p-0 text-start {f:if(condition: '{wizardInformation.disabled}', then: ' disabled')}"
+    <a class="pagetreefilter-link btn btn-link media p-0 text-start {f:if(condition: '{wizardInformation.disabled}', then: ' disabled')}"
        data-pagetreefilter="{f:if(condition: '{wizardInformation.filter}', then: '{wizardInformation.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{wizardInformation}\')}')}">
         <f:render section="itemContent" arguments="{_all}" />
     </a>
