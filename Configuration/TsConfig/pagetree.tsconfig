@@ -1,0 +1,6 @@
+ tx_pagetreefilter{
+     # set the uid of language that you prefer to search for in the page Tree seperated by comma ","
+     # For example 0,1 that mean default language and the second language used
+     # By default they use 0
+     used_language_uid = 0
+ }

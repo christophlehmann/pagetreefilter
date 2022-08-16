@@ -10,6 +10,10 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Doctrine\DBAL\Connection;
+use TYPO3\CMS\Core\Database\Query\QueryHelper;
+use TYPO3\CMS\Core\DataHandling\PlainDataResolver;
+use TYPO3\CMS\Core\Versioning\VersionState;
 
 class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository
 {
@@ -33,6 +37,10 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
 
     public function fetchFilteredTree(string $searchFilter, array $allowedMountPointPageIds, string $additionalWhereClause): array
     {
+        $langUidArray = [0];
+        //Render language uid should used in the page tree from typoscript
+        $langUidArray  = ConfigurationUtility::usedLanguagesInPageTree();
+
         if (ConfigurationUtility::isWizardEnabled()) {
             $newSearchFilter = $this->extractConstraints($searchFilter);
             if ($this->filterTable) {
@@ -50,9 +58,181 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             }
         }
 
-        return parent::fetchFilteredTree($searchFilter, $allowedMountPointPageIds, $additionalWhereClause);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        if (!empty($this->additionalQueryRestrictions)) {
+            foreach ($this->additionalQueryRestrictions as $additionalQueryRestriction) {
+                $queryBuilder->getRestrictions()->add($additionalQueryRestriction);
+            }
+        }
+
+        $expressionBuilder = $queryBuilder->expr();
+
+        if ($this->currentWorkspace === 0) {
+            // Only include ws_id=0
+            $workspaceIdExpression = $expressionBuilder->eq('t3ver_wsid', 0);
+        } else {
+            // Include live records PLUS records from the given workspace
+            $workspaceIdExpression = $expressionBuilder->in(
+                't3ver_wsid',
+                [0, $this->currentWorkspace]
+            );
+        }
+
+        $queryBuilder = $queryBuilder
+            ->select(...$this->fields)
+            ->from('pages')
+            ->where(
+            // Only show records in default language
+                $queryBuilder->expr()->in('sys_language_uid',$queryBuilder->createNamedParameter($langUidArray, Connection::PARAM_INT_ARRAY)),
+                $workspaceIdExpression,
+                QueryHelper::stripLogicalOperatorPrefix($additionalWhereClause)
+            );
+
+        $searchParts = $expressionBuilder->orX();
+        if (is_numeric($searchFilter) && $searchFilter > 0) {
+            $searchParts->add(
+                $expressionBuilder->eq('uid', $queryBuilder->createNamedParameter($searchFilter, \PDO::PARAM_INT))
+            );
+        }
+        $searchFilter = '%' . $queryBuilder->escapeLikeWildcards($searchFilter) . '%';
+
+        $searchWhereAlias = $expressionBuilder->orX(
+            $expressionBuilder->like(
+                'nav_title',
+                $queryBuilder->createNamedParameter($searchFilter, \PDO::PARAM_STR)
+            ),
+            $expressionBuilder->like(
+                'title',
+                $queryBuilder->createNamedParameter($searchFilter, \PDO::PARAM_STR)
+            )
+        );
+        $searchParts->add($searchWhereAlias);
+
+        $queryBuilder->andWhere($searchParts);
+        $pageRecords = $queryBuilder
+            ->execute()
+            ->fetchAll();
+
+        $itemUid = [];
+        foreach ($pageRecords as $key => $value){
+            if($value['l10n_parent'] == 0){
+                $itemUid[] = $value['uid'];
+            }else{
+                $itemUid[]= $value['l10n_parent'];
+            }
+        }
+
+        $queryBuilderTranlated = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('pages');
+        $queryBuilderTranlated->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
+        $queryBuilderTranlated = $queryBuilderTranlated
+            ->select(...$this->fields)
+            ->from('pages')
+            ->where(
+                $queryBuilderTranlated->expr()->in('uid',$queryBuilderTranlated->createNamedParameter($itemUid, Connection::PARAM_INT_ARRAY)),
+            );
+
+        $pageRecords = $queryBuilderTranlated->execute()->fetchAllAssociative();
+
+        $livePagePids = [];
+        if ($this->currentWorkspace !== 0 && !empty($pageRecords)) {
+            $livePageIds = [];
+            foreach ($pageRecords as $pageRecord) {
+                $livePageIds[] = (int)$pageRecord['uid'];
+                $livePagePids[(int)$pageRecord['uid']] = (int)$pageRecord['pid'];
+                if ((int)$pageRecord['t3ver_oid'] > 0) {
+                    $livePagePids[(int)$pageRecord['t3ver_oid']] = (int)$pageRecord['pid'];
+                }
+                if ((int)$pageRecord['t3ver_state'] === VersionState::MOVE_PLACEHOLDER) {
+                    $movePlaceholderData[$pageRecord['t3ver_move_id']] = [
+                        'pid' => (int)$pageRecord['pid'],
+                        'sorting' => (int)$pageRecord['sorting']
+                    ];
+                }
+            }
+            // Resolve placeholders of workspace versions
+            $resolver = GeneralUtility::makeInstance(
+                PlainDataResolver::class,
+                'pages',
+                $livePageIds
+            );
+            $resolver->setWorkspaceId($this->currentWorkspace);
+            $resolver->setKeepDeletePlaceholder(false);
+            $resolver->setKeepMovePlaceholder(false);
+            $resolver->setKeepLiveIds(false);
+            $recordIds = $resolver->get();
+
+            $pageRecords = [];
+            if (!empty($recordIds)) {
+                $queryBuilder->getRestrictions()->removeAll();
+                $queryBuilder
+                    ->select(...$this->fields)
+                    ->from('pages')
+                    ->where(
+                        $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($recordIds, Connection::PARAM_INT_ARRAY))
+                    );
+                $queryBuilder->andWhere($searchParts);
+                $pageRecords = $queryBuilder
+                    ->execute()
+                    ->fetchAll();
+            }
+        }
+
+        $pages = [];
+        foreach ($pageRecords as $pageRecord) {
+            // In case this is a record from a workspace
+            // The uid+pid of the live-version record is fetched
+            // This is done in order to avoid fetching records again (e.g. via BackendUtility::workspaceOL()
+            if ((int)$pageRecord['t3ver_oid'] > 0) {
+                // This probably should also remove the live version
+                if ((int)$pageRecord['t3ver_state'] === VersionState::DELETE_PLACEHOLDER) {
+                    continue;
+                }
+                // When a move pointer is found, the pid+sorting of the MOVE_PLACEHOLDER should be used (this is the
+                // workspace record holding this information), also the t3ver_state is set to the MOVE_PLACEHOLDER
+                // because the record is then added
+                if ((int)$pageRecord['t3ver_state'] === VersionState::MOVE_POINTER && !empty($movePlaceholderData[$pageRecord['t3ver_oid']])) {
+                    $parentPageId = (int)$movePlaceholderData[$pageRecord['t3ver_oid']]['pid'];
+                    $pageRecord['sorting'] = (int)$movePlaceholderData[$pageRecord['t3ver_oid']]['sorting'];
+                    $pageRecord['t3ver_state'] = VersionState::MOVE_PLACEHOLDER;
+                } else {
+                    // Just a record in a workspace (not moved etc)
+                    $parentPageId = (int)$livePagePids[$pageRecord['t3ver_oid']];
+                }
+                // this is necessary so the links to the modules are still pointing to the live IDs
+                $pageRecord['uid'] = (int)$pageRecord['t3ver_oid'];
+                $pageRecord['pid'] = $parentPageId;
+            }
+            $pages[(int)$pageRecord['uid']] = $pageRecord;
+        }
+        unset($pageRecords);
+
+        $pages = $this->filterPagesOnMountPoints($pages, $allowedMountPointPageIds);
+
+
+
+        $groupedAndSortedPagesByPid = $this->groupAndSortPages($pages);
+
+        $this->fullPageTree = [
+            'uid' => 0,
+            'title' => $GLOBALS['TYPO3_CONF_VARS']['SYS']['sitename'] ?: 'TYPO3'
+        ];
+        $this->addChildrenToPage($this->fullPageTree, $groupedAndSortedPagesByPid);
+
+        return $this->fullPageTree;
     }
 
+    /**
+     * @return array
+     */
     protected function getFilteredPageUids(): array
     {
         $pageUids = [];
