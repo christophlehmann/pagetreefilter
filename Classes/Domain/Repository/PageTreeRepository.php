@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository
 {
-    public static $filteredPageUids = [];
+    public static $resultSets = [];
 
     public static $filterErrorneous = false;
 
@@ -21,7 +21,8 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
 
     protected $filterConstraints = [];
 
-    // @todo: Use predefined list from core. Where is it?
+    protected $extendedFiltersThatShouldBeApplied = [];
+
     protected const ALLOWED_TABLE_FIELDS = [
         'tt_content:CType',
         'tt_content:list_type',
@@ -35,18 +36,51 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
     {
         if (ConfigurationUtility::isWizardEnabled()) {
             $newSearchFilter = $this->extractConstraints($searchFilter);
+            $searchFilter = $newSearchFilter;
+            $pages = [];
+
             if ($this->filterTable) {
                 $this->validate();
 
                 if (!self::$filterErrorneous) {
-                    self::$filteredPageUids = $this->getFilteredPageUids();
+                    $pages = $this->getFilteredPageUids();
+                    self::$resultSets['default'] = [
+                        'pageUids' => $pages
+                    ];
+                }
+            }
 
-                    if (self::$filteredPageUids !== []) {
-                        $additionalWhereClause = sprintf('%s AND uid IN (%s)', $additionalWhereClause,
-                            implode(',', self::$filteredPageUids));
-                        $searchFilter = $newSearchFilter;
+            $extendedFilters = ConfigurationUtility::getExtendedFilters();
+            if ($this->extendedFiltersThatShouldBeApplied !== [] && $extendedFilters !== []) {
+                foreach($this->extendedFiltersThatShouldBeApplied as $extendedFilter) {
+                    if (isset($extendedFilters[$extendedFilter])) {
+                        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                            ->getQueryBuilderForTable($extendedFilters[$extendedFilter]['select.']['table']);
+                        $filteredPages = $queryBuilder
+                            ->select($extendedFilters[$extendedFilter]['select.']['field'])
+                            ->from($extendedFilters[$extendedFilter]['select.']['table'])
+                            ->andWhere($extendedFilters[$extendedFilter]['select.']['where'])
+                            ->execute()
+                            ->fetchFirstColumn();
+
+                        self::$resultSets[$extendedFilter] = array_merge(
+                            $extendedFilters[$extendedFilter],
+                            [
+                                'pageUids' => $filteredPages
+                            ]
+                        );
+
+                        foreach ($filteredPages as $filteredPage) {
+                            $pages[] = $filteredPage;
+                        }
                     }
                 }
+            }
+
+
+            if ($pages !== []) {
+                $additionalWhereClause = sprintf('%s AND uid IN (%s)', $additionalWhereClause,
+                    implode(',', array_unique($pages)));
             }
         }
 
@@ -117,6 +151,9 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
                     case 'table':
                         $this->filterTable = $filter[1];
                         break;
+                    case 'filter':
+                        $this->extendedFiltersThatShouldBeApplied[] = $filter[1];
+                        break;
                     default:
                         $this->filterConstraints[] = [
                             'field' => $filter[0],
@@ -140,7 +177,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         if (!$backendUser->isAdmin() && !$backendUser->check('tables_select', $this->filterTable)) {
             self::$filterErrorneous = true;
         }
-        $connection = $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($this->filterTable);
         foreach($this->filterConstraints as $constraint) {
             if (!isset($GLOBALS['TCA'][$this->filterTable]['columns'][$constraint['field']])) {

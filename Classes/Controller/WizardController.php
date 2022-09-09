@@ -51,6 +51,8 @@ class WizardController extends NewContentElementController
         $wizards = $this->appendRecords($wizards);
         $wizards = $this->appendPageTypes($wizards);
         $wizards = $this->appendUnknownContentTypes($wizards);
+        $wizards = $this->appendExtended($wizards);
+
 
         return $wizards;
     }
@@ -234,6 +236,26 @@ class WizardController extends NewContentElementController
                     'iconIdentifier' => 'default-not-found',
                     'filter' => sprintf('table=tt_content %s', implode(' ', $filterParts)),
                     'disabled' => false
+                ];
+            }
+        }
+
+        return $wizards;
+    }
+
+    protected function appendExtended($wizards)
+    {
+        $customWizardItems = ConfigurationUtility::getCustomWizardItems();
+        if ($customWizardItems !== []) {
+            $wizards['filters']['header'] =
+                $this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_tab_extended_filters');
+
+            foreach ($customWizardItems as $identifier => $wizardItem) {
+                $wizards['filters_' . $identifier] = [
+                    'title' => $this->getLanguageService()->sL($wizardItem['title']),
+                    'description' => $this->getLanguageService()->sL($wizardItem['description'] ?? ''),
+                    'iconIdentifier' => $wizardItem['iconIdentifier'] ?? 'actions-filter',
+                    'filter' => $wizardItem['filter']
                 ];
             }
         }

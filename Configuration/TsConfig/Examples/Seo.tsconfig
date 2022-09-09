@@ -1,0 +1,40 @@
+tx_pagetreefilter {
+    filters {
+        indexingEnabled {
+            description = Page will be indexed by search engines
+            select {
+                field = uid
+                table = pages
+                where = no_index=0 AND doktype < 199
+            }
+            backgroundColor = green
+        }
+        indexingDisabled {
+            description = Page will be not be indexed by search engines
+            select {
+                field = uid
+                table = pages
+                where = no_index=1 AND doktype < 199
+            }
+            backgroundColor = grey
+        }
+        noMetaDescription {
+            description = Page has no meta description, so the description in search engine results might be inaccurate
+            select {
+                field = uid
+                table = pages
+                where = no_index=0 AND doktype < 199 AND (description='' OR description IS NULL)
+            }
+            backgroundColor = red
+        }
+    }
+
+    wizardItems {
+        seoStatus {
+            title = SEO Status
+            description = Show pages with SEO issues
+            iconIdentifier = content-elements-searchform
+            filter = filter=indexingEnabled filter=indexingDisabled filter=noMetaDescription
+        }
+    }
+}

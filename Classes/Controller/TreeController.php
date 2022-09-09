@@ -20,10 +20,14 @@ class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
             $rootElement['name'] = sprintf('❌ %s', $this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:filter_error'));
             $elements = [$rootElement];
         } else {
-            if (PageTreeRepository::$filteredPageUids !== []) {
-                foreach($elements as $key => $element) {
-                    if (in_array($element['identifier'], PageTreeRepository::$filteredPageUids)) {
+            foreach ($elements as $key => $element) {
+                foreach (PageTreeRepository::$resultSets as $resultSet) {
+                    if (in_array($element['identifier'], $resultSet['pageUids'])) {
+                        if (isset($resultSet['description'])) {
+                            $elements[$key]['tip'] .= sprintf(', %s', $resultSet['description']);
+                        }
                         $elements[$key]['class'] = 'pagetreefilter-highlighted';
+                        $elements[$key]['backgroundColor'] = $resultSet['backgroundColor'] ?? '#0078e6';
                     }
                 }
             }

@@ -1,0 +1,75 @@
+tx_pagetreefilter {
+    filters {
+        indexedInSolr {
+            # The description is visible when you hover over the page icon
+            description = Indexed in Solr
+
+            select {
+                field = item_uid
+                table = tx_solr_indexqueue_item
+                where = indexing_configuration = 'pages' AND indexed > changed AND errors = ''
+            }
+
+            # A CSS background color for pages matching the query
+            backgroundColor = darkgreen
+        }
+        solrIndexingErrors {
+            description = Has indexing error
+            select {
+                field = item_uid
+                table = tx_solr_indexqueue_item
+                where = indexing_configuration = 'pages' AND errors != ''
+            }
+            backgroundColor = red
+        }
+        solrNeedsIndexing {
+            description = Needs (re)indexing
+            select {
+                field = item_uid
+                table = tx_solr_indexqueue_item
+                where = indexing_configuration = 'pages' AND indexed = 0 AND errors = ''
+            }
+            backgroundColor = lightgreen
+        }
+        solrNotInQueue {
+            description = Not in Index Queue
+            select {
+                field = uid
+                table = pages
+                where = sys_language_uid = 0 AND uid NOT IN (SELECT item_uid FROM tx_solr_indexqueue_item)
+            }
+            backgroundColor = orange
+        }
+        solrNoSearch {
+            description = Indexing disabled
+            select {
+                field = uid
+                table = pages
+                where = no_search = 1
+            }
+            backgroundColor = lightgrey
+        }
+        solrNoSearchSubEntries {
+            description = Indexing disabled for sub entries
+            select {
+                field = uid
+                table = pages
+                where = no_search_sub_entries = 1
+            }
+            backgroundColor = #4b4b4b
+        }
+    }
+
+    wizardItems {
+        solrIndexQueueStatus {
+            title = Solr Index Queue Status
+            description = Show pages that are indexed, not in the queue or have errors
+
+            # Overview of icons in TYPO3: https://typo3.github.io/TYPO3.Icons/
+            iconIdentifier = content-elements-searchform
+
+            # Multiple filters can be combined. The order matters for overlapping queries with different background colors
+            filter = filter=indexedInSolr filter=solrIndexingErrors filter=solrNeedsIndexing filter=solrNotInQueue filter=solrNoSearch filter=solrNoSearchSubEntries
+        }
+    }
+}

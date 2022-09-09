@@ -39,6 +39,28 @@ class ConfigurationUtility
         return GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('pagetreefilter', 'pageId');
     }
 
+    public static function getExtendedFilters(): array
+    {
+        $backendUser = self::getBackendUser();
+        $filters = $backendUser->getTSConfig()['tx_pagetreefilter.']['filters.'] ?? [];
+        foreach ($filters as $name => $configuration) {
+            $filters[rtrim($name, '.')] = $configuration;
+            unset($filters[$name]);
+        }
+        return $filters;
+    }
+
+    public static function getCustomWizardItems(): array
+    {
+        $backendUser = self::getBackendUser();
+        $wizardItems = $backendUser->getTSConfig()['tx_pagetreefilter.']['wizardItems.'] ?? [];
+        foreach ($wizardItems as $name => $configuration) {
+            $wizardItems[rtrim($name, '.')] = $configuration;
+            unset($wizardItems[$name]);
+        }
+        return $wizardItems;
+    }
+
     protected static function getBackendUser(): ?BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
