@@ -39,6 +39,7 @@ class WizardController extends NewContentElementController
 
     public function getWizards(): array
     {
+        $this->disableContentDefenderHook();
         $wizards = parent::getWizards();
         $wizards = $this->appendPluginsHavingNoWizardConfiguration($wizards);
         ksort($wizards);
@@ -227,6 +228,15 @@ class WizardController extends NewContentElementController
         }
 
         return null;
+    }
+
+    /**
+     * EXT:content_defender limits placing content elements in any colPos. The hook needs to be disabled to be able to
+     * see all possible wizard items.
+     */
+    protected function disableContentDefenderHook(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms']['db_new_content_el']['wizardItemsHook']['content_defender']);
     }
 
     public function injectIconRegistry(IconRegistry $iconRegistry)
