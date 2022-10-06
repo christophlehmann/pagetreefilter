@@ -43,6 +43,7 @@ class WizardController extends NewContentElementController
         $wizards = parent::getWizards();
         $wizards = $this->appendPluginsHavingNoWizardConfiguration($wizards);
         ksort($wizards);
+        $wizards = $this->keepOnlyListTypeAndCTypeInDefaultValues($wizards);
         $wizards = $this->disableWizardsHavingNoResults($wizards);
         $wizards = $this->appendRecords($wizards);
         $wizards = $this->appendPageTypes($wizards);
@@ -147,6 +148,19 @@ class WizardController extends NewContentElementController
             ->fetchFirstColumn();
 
         return $pageTypes;
+    }
+
+    protected function keepOnlyListTypeAndCTypeInDefaultValues(array $wizards): array
+    {
+        foreach($wizards as $index => $wizard) {
+            foreach($wizard['tt_content_defValues'] as $columnName => $defaultValue) {
+                if (!in_array($columnName, ['CType', 'list_type'])) {
+                    unset($wizards[$index]['tt_content_defValues'][$columnName]);
+                }
+            }
+        }
+
+        return $wizards;
     }
 
     protected function disableWizardsHavingNoResults(array $wizards): array

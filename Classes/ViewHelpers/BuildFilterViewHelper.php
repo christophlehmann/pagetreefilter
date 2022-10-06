@@ -29,14 +29,10 @@ class BuildFilterViewHelper extends AbstractViewHelper
             return $wizardInformation['filter'];
         }
 
-        $pageId = ConfigurationUtility::getPageId();
-        $ignoreFieldList = BackendUtility::getPagesTSconfig($pageId)['tx_pagetreefilter.']['buildFilter.']['ignoreFields'] ?? '';
-        $ignoreFields = GeneralUtility::trimExplode(',', $ignoreFieldList);
-
         $filter = 'table=tt_content';
         if (isset($wizardInformation['tt_content_defValues'])) {
             foreach($wizardInformation['tt_content_defValues'] as $field => $value) {
-                if (!in_array($field, $ignoreFields)) {
+                if (in_array($field, ['CType', 'list_type'])) {
                     $filter = sprintf('%s %s=%s', $filter, $field, $value);
                 }
             }

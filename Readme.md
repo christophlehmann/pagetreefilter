@@ -35,19 +35,19 @@ Highlight pages with...
 
 `tx_pagetreefilter.enable = 1`
 
-### ignoreFields (Page TSconfig)
-
-The wizard creates a filter based on `tt_content_defValues`, see `mod.wizards.newContentElement.wizardItems`.
-If you don't like them, then you can ignore them: 
-
-`tx_pagetreefilter.buildFilter.ignoreFields = tx_gridelements_columns`
-
 ### PageId
 
 The wizard needs a page id for fetching Page TSconfig in order to gather possible content elements and plugins. This page id is determined by
 
 1. First WebMount in case the user is no admin
-1. Extension configuration: `pageId` (default: `1`)
+2. Extension configuration: `pageId` (default: `1`)
+
+### ~~ignoreFields (Page TSconfig)~~
+
+~~The wizard creates a filter based on~~ `tt_content_defValues`~~, see~~ `mod.wizards.newContentElement.wizardItems`.
+~~If you don't like them, then you can ignore them:~~ `tx_pagetreefilter.buildFilter.ignoreFields = tx_gridelements_columns`
+
+The settings is removed in v1.4.0. For now only `CType` and `list_type` are used to filter for content elements and to determine if they are used. Feel free to create an issue if you really need it.
 
 ---
 
