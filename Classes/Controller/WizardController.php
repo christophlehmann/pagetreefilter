@@ -24,6 +24,8 @@ class WizardController extends NewContentElementController
      */
     protected $iconRegistry;
 
+    protected $unknownContentTypes = [];
+
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         if (ConfigurationUtility::isWizardEnabled()) {
@@ -48,6 +50,7 @@ class WizardController extends NewContentElementController
         $wizards = $this->disableWizardsHavingNoResults($wizards);
         $wizards = $this->appendRecords($wizards);
         $wizards = $this->appendPageTypes($wizards);
+        $wizards = $this->appendUnknownContentTypes($wizards);
 
         return $wizards;
     }
@@ -171,7 +174,7 @@ class WizardController extends NewContentElementController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
-        $contentTypes = $queryBuilder
+        $rows = $queryBuilder
             ->select('CType', 'list_type')
             ->from('tt_content')
             ->groupBy('CType', 'list_type')
@@ -179,10 +182,13 @@ class WizardController extends NewContentElementController
             ->fetchAllAssociative();
 
         $generalPluginEnabled = false;
-        foreach ($contentTypes as $no => $contentTypeCombination) {
-            if ($contentTypeCombination['CType'] !== 'list') {
-                unset($contentTypes[$no]['list_type']);
+        $contentTypes = [];
+        foreach ($rows as $row) {
+            if ($row['CType'] !== 'list') {
+                unset($row['list_type']);
+                $contentTypes[$row['CType']] = $row;
             } else {
+                $contentTypes[$row['CType'] . $row['list_type']] = $row;
                 $generalPluginEnabled = true;
             }
         }
@@ -199,7 +205,33 @@ class WizardController extends NewContentElementController
             if ($wizard['tt_content_defValues'] === ['CType' => 'list']) {
                 $wizard[$no]['disabled'] = $generalPluginEnabled;
             } else {
-                $wizards[$no]['disabled'] = !in_array($wizard['tt_content_defValues'], $contentTypes);
+                $keyFound = array_search($wizard['tt_content_defValues'], $contentTypes);
+                $wizards[$no]['disabled'] = is_bool($keyFound);
+                unset($contentTypes[$keyFound]);
+            }
+        }
+
+        $this->unknownContentTypes = $contentTypes;
+
+        return $wizards;
+    }
+
+    protected function appendUnknownContentTypes(array $wizards): array
+    {
+        if ($this->unknownContentTypes !== [] && $this->getBackendUser()->isAdmin()) {
+            $wizards['unknown']['header'] = '?';
+            foreach ($this->unknownContentTypes as $no => $unknownContentType) {
+                $filterParts = [];
+                foreach ($unknownContentType as $fieldName => $fieldValue) {
+                    $filterParts[] = sprintf('%s=%s', $fieldName, $fieldValue);
+                }
+
+                $wizards['unknown_unknown' . $no] = [
+                    'title' => $unknownContentType['list_type'] ?? $unknownContentType['CType'],
+                    'iconIdentifier' => 'default-not-found',
+                    'filter' => sprintf('table=tt_content %s', implode(' ', $filterParts)),
+                    'disabled' => false
+                ];
             }
         }
 
