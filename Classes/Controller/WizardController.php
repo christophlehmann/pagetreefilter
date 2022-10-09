@@ -292,4 +292,12 @@ class WizardController extends NewContentElementController
     {
         $this->iconRegistry = $iconRegistry;
     }
+
+    /**
+     * Added for EXT:flux
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }
