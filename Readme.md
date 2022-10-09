@@ -2,18 +2,7 @@
 TYPO3 Extension: Pagetree Filter
 ================================
 
-It is able to highlight pages with certain records or content elements in the pagetree. For simplicity it comes with a wizard.
-
-## Examples
-
-Highlight pages with...
-
-* sys_category records: `table=sys_category`
-* image content elements: `table=tt_content CType=image`
-* hidden image content elements: `table=tt_content CType=image hidden=1`
-* content elements where the elements header starts with rocket: `table=tt_content header=rocket*`
-* content elements where the elements header ends with launch: `table=tt_content header=*launch`
-* content elements where the elements header contains rocketlaunch: `table=tt_content header=*rocketlaunch*`
+It adds a wizard like the new content element wizard that helps finding content elements and records in the page tree. With a few clicks you know where they are used. You can also see what elements are not used.
 
 ## Screenshots
 
@@ -24,6 +13,18 @@ Highlight pages with...
 ### The filter wizard
 
 ![The Wizard](https://raw.githubusercontent.com/christophlehmann/pagetreefilter/master/Documentation/Images/filter-wizard.png)
+
+## Example filters
+
+Highlight pages with...
+
+* sys_category records: `table=sys_category`
+* image content elements: `table=tt_content CType=image`
+* hidden image content elements: `table=tt_content CType=image hidden=1`
+* content elements where the elements header starts with rocket: `table=tt_content header=rocket*`
+* content elements where the elements header ends with launch: `table=tt_content header=*launch`
+* content elements where the elements header contains rocketlaunch: `table=tt_content header=*rocketlaunch*`
+
 
 ## Installation
 

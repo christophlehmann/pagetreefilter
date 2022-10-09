@@ -2,7 +2,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Pagetree Filter',
-    'description' => 'Filter the pagetree for records and content elements. For simplicity it comes with a wizard.',
+    'description' => 'It adds a wizard like the new content element wizard that helps finding content elements and records in the page tree. With a few clicks you know where they are used. You can also see what elements are not used.',
     'category' => 'be',
     'state' => 'stable',
     'clearCacheOnLoad' => 1,

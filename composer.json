@@ -1,7 +1,7 @@
 {
     "name": "christophlehmann/pagetreefilter",
     "type": "typo3-cms-extension",
-    "description": "Filter the Pagetree for records and content elements. For simplicity it comes with a wizard.",
+    "description": "It adds a wizard like the new content element wizard that helps finding content elements and records in the page tree. With a few clicks you know where they are used. You can also see what elements are not used.",
     "license": "GPL-2.0-or-later",
     "homepage": "https://github.com/christophlehmann/pagetreefilter",
     "authors": [
