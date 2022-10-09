@@ -41,7 +41,8 @@ class WizardController extends NewContentElementController
     {
         $this->disableContentDefenderHook();
         $wizards = parent::getWizards();
-        $wizards = $this->appendPluginsHavingNoWizardConfiguration($wizards);
+        $wizards = $this->appendItemsHavingNoWizardConfiguration($wizards, 'list_type');
+        $wizards = $this->appendItemsHavingNoWizardConfiguration($wizards, 'CType');
         ksort($wizards);
         $wizards = $this->keepOnlyListTypeAndCTypeInDefaultValues($wizards);
         $wizards = $this->disableWizardsHavingNoResults($wizards);
@@ -51,24 +52,21 @@ class WizardController extends NewContentElementController
         return $wizards;
     }
 
-    protected function appendPluginsHavingNoWizardConfiguration($wizards)
+    protected function appendItemsHavingNoWizardConfiguration($wizards, $columnName)
     {
-        foreach ($GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['items'] ?? [] as $pluginConfiguration) {
-            $listType = $pluginConfiguration[1];
+        foreach ($GLOBALS['TCA']['tt_content']['columns'][$columnName]['config']['items'] ?? [] as $itemConfiguration) {
+            $contentType = $itemConfiguration[1];
 
-            if (empty($listType)) {
+            if (empty($contentType) || $contentType === '--div--') {
                 continue;
             }
 
             $authMode = $GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['authMode'];
-            if (!$this->getBackendUser()->checkAuthMode('tt_content', 'list_type', $listType, $authMode)) {
+            if (!$this->getBackendUser()->checkAuthMode('tt_content', $columnName, $contentType, $authMode)) {
                 continue;
             }
 
-            $newDefaultValues = [
-                'CType' => 'list',
-                'list_type' => $listType
-            ];
+            $newDefaultValues = $columnName === 'list_type' ? ['CType' => 'list', 'list_type' => $contentType] : ['CType' => $contentType];
             $availableDefaultValues = array_map(function ($wizard) {
                 return $wizard['tt_content_defValues'] ?? [];
             }, $wizards);
@@ -76,9 +74,14 @@ class WizardController extends NewContentElementController
                 continue;
             }
 
-            $iconIdentifier = !empty($pluginConfiguration[2]) ? $this->createIconIdentifier($pluginConfiguration[2]) : '';
-            $wizards['plugins_' . $listType] = [
-                'title' => $this->getLanguageService()->sL($pluginConfiguration[0]),
+            $iconIdentifier = $this->createIconIdentifier($itemConfiguration[2] ?? '');
+            if ($columnName === 'list_type') {
+                $identifier = 'plugins_' . $contentType;
+            } else {
+                $identifier = ($itemConfiguration[3] ?? 'default') . '_' . $contentType;
+            }
+            $wizards[$identifier] = [
+                'title' => $this->getLanguageService()->sL($itemConfiguration[0]),
                 'iconIdentifier' => $iconIdentifier,
                 'tt_content_defValues' => $newDefaultValues
             ];
@@ -227,9 +230,12 @@ class WizardController extends NewContentElementController
         return $view;
     }
 
-    protected function createIconIdentifier($iconPath = ''): ?string
+    protected function createIconIdentifier($iconPath): string
     {
-        if (!empty($iconPath)) {
+        if ($iconPath === '' || strpos($iconPath, '/') === false) {
+            return $iconPath;
+        }
+
             $iconIdentifier = 'tx-pagetreefilter-plugin-' . sha1($iconPath);
             $provider = str_ends_with(strtolower($iconPath), '.svg') ? SvgIconProvider::class : BitmapIconProvider::class;
             $this->iconRegistry->registerIcon(
@@ -240,9 +246,6 @@ class WizardController extends NewContentElementController
 
             return $iconIdentifier;
         }
-
-        return null;
-    }
 
     /**
      * EXT:content_defender limits placing content elements in any colPos. The hook needs to be disabled to be able to
