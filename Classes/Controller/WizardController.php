@@ -268,16 +268,16 @@ class WizardController extends NewContentElementController
             return $iconPath;
         }
 
-            $iconIdentifier = 'tx-pagetreefilter-plugin-' . sha1($iconPath);
-            $provider = str_ends_with(strtolower($iconPath), '.svg') ? SvgIconProvider::class : BitmapIconProvider::class;
-            $this->iconRegistry->registerIcon(
-                $iconIdentifier,
-                $provider,
-                ['source' => $iconPath]
-            );
+        $iconIdentifier = 'tx-pagetreefilter-plugin-' . sha1($iconPath);
+        $provider = str_ends_with(strtolower($iconPath), '.svg') ? SvgIconProvider::class : BitmapIconProvider::class;
+        $this->iconRegistry->registerIcon(
+            $iconIdentifier,
+            $provider,
+            ['source' => $iconPath]
+        );
 
-            return $iconIdentifier;
-        }
+        return $iconIdentifier;
+    }
 
     /**
      * EXT:content_defender limits placing content elements in any colPos. The hook needs to be disabled to be able to
