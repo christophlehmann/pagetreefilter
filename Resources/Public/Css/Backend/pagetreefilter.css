@@ -14,3 +14,11 @@
     background-color: #fafafa;
     padding: 0;
 }
+
+.pagetreefilter-wizard .modal-footer {
+    display: inline-block;
+}
+
+.pagetreefilter-wizard .modal-footer button {
+    width: 100%;
+}

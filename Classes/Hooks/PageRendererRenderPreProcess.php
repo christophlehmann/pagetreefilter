@@ -24,6 +24,8 @@ final class PageRendererRenderPreProcess
             $pageRenderer->addInlineLanguageLabelArray([
                 'pagetreefilter_wizard_title' => $this->getLanguageService()->sL($labelPrefix . 'wizard_title'),
                 'pagetreefilter_button_title' => $this->getLanguageService()->sL($labelPrefix . 'filter_button_title'),
+                'pagetreefilter_wizard_submit_button' => $this->getLanguageService()->sL($labelPrefix . 'wizard_submit_button'),
+                'pagetreefilter_wizard_input_placeholder' => $this->getLanguageService()->sL($labelPrefix . 'wizard_input_placeholder'),
             ]);
         }
     }

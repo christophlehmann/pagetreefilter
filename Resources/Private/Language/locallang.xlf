@@ -15,6 +15,12 @@
 			<trans-unit id="wizard_error_message" resname="wizard_error_message">
 				<source>Nothing found. Probably the page id was configured incorrectly.</source>
 			</trans-unit>
+			<trans-unit id="wizard_submit_button" resname="wizard_submit_button">
+				<source>Apply</source>
+			</trans-unit>
+			<trans-unit id="wizard_input_placeholder" resname="wizard_input_placeholder">
+				<source>Enter filter</source>
+			</trans-unit>
 			<trans-unit id="filter_error" resname="filter_error">
 				<source>Filter erroneous</source>
 			</trans-unit>

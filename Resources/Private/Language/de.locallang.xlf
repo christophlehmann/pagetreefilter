@@ -4,27 +4,27 @@
 		<header/>
 		<body>
 			<trans-unit id="wizard_title" resname="wizard_title">
-				<source>Pagetree Filter</source>
 				<target>Seitenbaum-Filter</target>
 			</trans-unit>
 			<trans-unit id="wizard_hide_unused_elements" resname="wizard_hide_unused_elements">
-				<source>Hide unused elements</source>
 				<target>Unbenutzte Elemente ausblenden</target>
 			</trans-unit>
 			<trans-unit id="wizard_tab_records" resname="wizard_tab_records">
-				<source>Records</source>
 				<target>Datensätze</target>
 			</trans-unit>
 			<trans-unit id="wizard_error_message" resname="wizard_error_message">
-				<source>Nothing found. Probably the page id was configured incorrectly.</source>
 				<target>Nichts gefunden. Wahrscheinlich ist die Seiten-Id falsch konfiguriert.</target>
 			</trans-unit>
+			<trans-unit id="wizard_submit_button" resname="wizard_submit_button">
+				<target>Anwenden</target>
+			</trans-unit>
+			<trans-unit id="wizard_input_placeholder" resname="wizard_input_placeholder">
+				<target>Filter eingeben</target>
+			</trans-unit>
 			<trans-unit id="filter_error" resname="filter_error">
-				<source>Filter erroneous</source>
 				<target>Filter fehlerhaft</target>
 			</trans-unit>
 			<trans-unit id="filter_button_title" resname="filter_button_title">
-				<source>Filter tree for content elements and records</source>
 				<target>Baum nach Inhaltselementen und Datensätzen filtern</target>
 			</trans-unit>
 		</body>

@@ -31,14 +31,32 @@ require([], function () {
                 let links = document.querySelectorAll('a.pagetreefilter');
                 links.forEach((button) => {
                     button.addEventListener('click', () => {
-                        applyFilter(button.getAttribute('data-pagetreefilter'));
-                        TYPO3.Modal.dismiss()
+                        let filterInput = document.querySelector('.pagetreefilter-wizard #pagetreefilter-filter');
+                        let newFilter = button.getAttribute('data-pagetreefilter');
+                        if (filterInput.value === newFilter) {
+                            applyFilter();
+                        }
+                        filterInput.value = newFilter;
+                        filterInput.focus();
                     });
                 });
                 toggleHideUnusedElements();
-                document.querySelector('#pagetreefilterhideunused').addEventListener('click', (event) => {
+                document.querySelector('#pagetreefilterhideunused').addEventListener('click', () => {
                     toggleHideUnusedElements()
                 });
+
+                let footer = `  
+                    <div class="t3js-modal-footer modal-footer">
+                        <form id="pagetreefilter-form">
+                            <div class="row">
+                                <div class="col-lg-9"><input type="text" class="form-control" id="pagetreefilter-filter" placeholder="` + TYPO3.lang.pagetreefilter_wizard_input_placeholder + `"></div>
+                                <div class="col-lg-3"><button class="btn btn-primary"><span>` + TYPO3.lang.pagetreefilter_wizard_submit_button + `</span></button></div>
+                            </div>
+                        </form>
+                    </div>
+                `
+                document.querySelector('.pagetreefilter-wizard .modal-content').insertAdjacentHTML('beforeend', footer);
+                document.querySelector('#pagetreefilter-form').addEventListener('submit', applyFilter);
             },
             content: TYPO3.settings.ajaxUrls.pagetreefilter_fetch_filter,
             additionalCssClasses: ['pagetreefilter-wizard']
@@ -79,10 +97,14 @@ require([], function () {
         }
     }
 
-    function applyFilter(filter)
-    {
+    function applyFilter(event) {
+        if (event) {
+            event.preventDefault();
+        }
+        let filter = document.querySelector('#pagetreefilter-filter').value;
         document.querySelector('#typo3-pagetree .search-input').value = filter;
-        document.querySelector('#typo3-pagetree-tree').filter(filter)
+        document.querySelector('#typo3-pagetree-tree').filter(filter);
+        TYPO3.Modal.dismiss();
     }
 
     initializeFilter();
