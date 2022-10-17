@@ -159,6 +159,9 @@ class WizardController extends NewContentElementController
     protected function keepOnlyListTypeAndCTypeInDefaultValues(array $wizards): array
     {
         foreach($wizards as $index => $wizard) {
+            if (!is_array($wizard['tt_content_defValues'] ?? false)) {
+                continue;
+            }
             foreach($wizard['tt_content_defValues'] as $columnName => $defaultValue) {
                 if (!in_array($columnName, ['CType', 'list_type'])) {
                     unset($wizards[$index]['tt_content_defValues'][$columnName]);
