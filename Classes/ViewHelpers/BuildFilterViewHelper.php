@@ -32,7 +32,7 @@ class BuildFilterViewHelper extends AbstractViewHelper
         $filter = 'table=tt_content';
         if (isset($wizardInformation['tt_content_defValues'])) {
             foreach($wizardInformation['tt_content_defValues'] as $field => $value) {
-                if (in_array($field, ['CType', 'list_type'])) {
+                if (in_array($field, ['CType', 'list_type', 'tx_gridelements_backend_layout'])) {
                     $filter = sprintf('%s %s=%s', $filter, $field, $value);
                 }
             }
