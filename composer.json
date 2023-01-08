@@ -19,14 +19,43 @@
             "Lemming\\PageTreeFilter\\": "Classes"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Lemming\\PageTreeFilter\\Tests\\": "Tests"
+        }
+    },
     "extra": {
         "typo3/cms": {
-            "extension-key": "pagetreefilter"
+            "extension-key": "pagetreefilter",
+            "app-dir": ".Build",
+            "web-dir": ".Build/Web"
         }
     },
     "scripts": {
         "prepare-release": [
             "rm -rf .github"
+        ],
+        "test:acceptance": [
+            "./Build/Scripts/runTests.sh -p 8.1 -s acceptance"
+        ],
+        "phpstan": [
+            ".Build/bin/phpstan analyze -c Build/phpstan.neon"
         ]
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin",
+        "sort-packages": true,
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.1",
+        "codeception/module-asserts": "^1.3",
+        "codeception/module-webdriver": "^1.1",
+        "phpstan/phpstan": "^1.9",
+        "typo3/testing-framework": "^6.14.0"
     }
 }

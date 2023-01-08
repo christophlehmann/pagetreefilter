@@ -1,0 +1,4 @@
+/Tests/Acceptance/Support/_generated/
+/.Build/
+/composer.lock
+/Build/testing-docker/.env
