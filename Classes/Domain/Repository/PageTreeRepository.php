@@ -99,7 +99,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             }
         }
 
-        $rows = $query->execute()->fetchAll();
+        $rows = $query->execute()->fetchAllAssociative();
         foreach ($rows as $row) {
             $pageUids[] = $row[$field];
         }

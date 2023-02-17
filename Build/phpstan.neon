@@ -1,0 +1,13 @@
+parameters:
+  level: 5
+
+  # Use local cache dir instead of /tmp
+  tmpDir: ../.Build/.cache/phpstan
+
+  paths:
+    - ../Classes
+    - ../Tests
+
+  excludePaths:
+    - ../Tests/Acceptance/Support/BackendTester.php
+    - ../Tests/Acceptance/Backend/ModalCest.php
