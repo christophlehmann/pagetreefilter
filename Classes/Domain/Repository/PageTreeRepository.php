@@ -140,7 +140,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         if (!$backendUser->isAdmin() && !$backendUser->check('tables_select', $this->filterTable)) {
             self::$filterErrorneous = true;
         }
-        $connection = $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($this->filterTable);
         foreach($this->filterConstraints as $constraint) {
             if (!isset($GLOBALS['TCA'][$this->filterTable]['columns'][$constraint['field']])) {
