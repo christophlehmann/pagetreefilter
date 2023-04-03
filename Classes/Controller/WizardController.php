@@ -7,24 +7,27 @@ use Lemming\PageTreeFilter\Utility\ConfigurationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Controller\ContentElement\NewContentElementController;
+use TYPO3\CMS\Backend\Controller\Event\ModifyNewContentElementWizardItemsEvent;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class WizardController extends NewContentElementController
 {
-    /**
-     * @var IconRegistry
-     */
-    protected $iconRegistry;
+    protected IconRegistry $iconRegistry;
 
-    protected $unknownContentTypes = [];
+    protected IconFactory $iconFactory;
+
+    protected array $unknownContentTypes = [];
 
     public function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
@@ -45,88 +48,118 @@ class WizardController extends NewContentElementController
             return new HtmlResponse($this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_error_message'));
         }
 
-        return parent::wizardAction($request);
+        // Get processed and modified wizard items
+        $wizardItems = $this->eventDispatcher->dispatch(
+            new ModifyNewContentElementWizardItemsEvent(
+                parent::getWizards(),
+                $this->pageInfo,
+                $this->colPos,
+                $this->sys_language,
+                $this->uid_pid,
+            )
+        )->getWizardItems();
+
+        $wizardItems = $this->appendItemsHavingNoWizardConfiguration($wizardItems, 'list_type');
+        $wizardItems = $this->appendItemsHavingNoWizardConfiguration($wizardItems, 'CType');
+        ksort($wizardItems);
+        $wizardItems = $this->keepOnlyListTypeAndCTypeInDefaultValues($wizardItems);
+        $wizardItems = $this->disableWizardsHavingNoResults($wizardItems);
+        $wizardItems = $this->appendRecords($wizardItems);
+        $wizardItems = $this->appendPageTypes($wizardItems);
+        $wizardItems = $this->appendUnknownContentTypes($wizardItems);
+
+        $key = 0;
+        $menuItems = [];
+        foreach ($wizardItems as $wizardKey => $wizardItem) {
+            // An item is either a header or an item rendered with title/description and icon:
+            if (isset($wizardItem['header'])) {
+                $menuItems[] = [
+                    'label' => $wizardItem['header'] ?: '-',
+                    'contentItems' => [],
+                ];
+                $key = count($menuItems) - 1;
+            } else {
+                // Initialize the view variables for the item
+                $viewVariables = [
+                    'wizardInformation' => $wizardItem,
+                    'wizardKey' => $wizardKey,
+                    'icon' => $this->iconFactory->getIcon(($wizardItem['iconIdentifier'] ?? ''), Icon::SIZE_MEDIUM, ($wizardItem['iconOverlay'] ?? ''))->render(),
+                ];
+                $menuItems[$key]['contentItems'][] = $viewVariables;
+            }
+        }
+
+        $view = $this->backendViewFactory->create($request);
+        $view->assignMultiple([
+            'tabsMenuItems' => $menuItems,
+            'tabsMenuId' => 'DTM-a31afc8fb616dc290e6626a9f3c9c433', // Just a unique id starting with DTM-
+        ]);
+
+        return new HtmlResponse($view->render('Wizard'));
     }
 
-    public function getWizards(): array
-    {
-        $this->disableContentDefenderHook();
-        $wizards = parent::getWizards();
-        $wizards = $this->appendItemsHavingNoWizardConfiguration($wizards, 'list_type');
-        $wizards = $this->appendItemsHavingNoWizardConfiguration($wizards, 'CType');
-        ksort($wizards);
-        $wizards = $this->keepOnlyListTypeAndCTypeInDefaultValues($wizards);
-        $wizards = $this->disableWizardsHavingNoResults($wizards);
-        $wizards = $this->appendRecords($wizards);
-        $wizards = $this->appendPageTypes($wizards);
-        $wizards = $this->appendUnknownContentTypes($wizards);
-
-        return $wizards;
-    }
-
-    protected function appendItemsHavingNoWizardConfiguration($wizards, $columnName)
+    protected function appendItemsHavingNoWizardConfiguration($wizardItems, $columnName): array
     {
         foreach ($GLOBALS['TCA']['tt_content']['columns'][$columnName]['config']['items'] ?? [] as $itemConfiguration) {
-            $contentType = $itemConfiguration[1];
+            $contentType = $itemConfiguration['value'];
 
             if (empty($contentType) || $contentType === '--div--') {
                 continue;
             }
 
-            $authMode = $GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['authMode'];
-            if (!$this->getBackendUser()->checkAuthMode('tt_content', $columnName, $contentType, $authMode)) {
+            if (!$this->getBackendUser()->checkAuthMode('tt_content', $columnName, $contentType)) {
                 continue;
             }
 
             $newDefaultValues = $columnName === 'list_type' ? ['CType' => 'list', 'list_type' => $contentType] : ['CType' => $contentType];
             $availableDefaultValues = array_map(function ($wizard) {
                 return $wizard['tt_content_defValues'] ?? [];
-            }, $wizards);
+            }, $wizardItems);
             if (in_array($newDefaultValues, $availableDefaultValues)) {
                 continue;
             }
 
-            $iconIdentifier = $this->createIconIdentifier($itemConfiguration[2] ?? '');
+            $iconIdentifier = $this->createIconIdentifier($itemConfiguration['icon'] ?? '');
             if ($columnName === 'list_type') {
                 $identifier = 'plugins_' . $contentType;
             } else {
-                $identifier = ($itemConfiguration[3] ?? 'default') . '_' . $contentType;
+                $identifier = ($itemConfiguration['group'] ?? 'default') . '_' . $contentType;
             }
-            $wizards[$identifier] = [
-                'title' => $this->getLanguageService()->sL($itemConfiguration[0]),
+            $wizardItems[$identifier] = [
+                'title' => $this->getLanguageService()->sL($itemConfiguration['label']),
                 'iconIdentifier' => $iconIdentifier,
                 'tt_content_defValues' => $newDefaultValues
             ];
         }
 
-        return $wizards;
+        return $wizardItems;
     }
 
-    protected function appendPageTypes(array $wizards): array
+    protected function appendPageTypes(array $wizardItems): array
     {
-        $wizards['pagetypes']['header'] = $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:be_groups.pagetypes_select');
+        $wizardItems['pagetypes']['header'] = $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:be_groups.pagetypes_select');
         $backendUser = $this->getBackendUser();
         $usedPageTypes = $this->getUsedPageTypes();
         foreach ($GLOBALS['TCA']['pages']['columns']['doktype']['config']['items'] as $no => $pageTypeConfiguration) {
-            if ($pageTypeConfiguration[1] === '--div--') {
+            if ($pageTypeConfiguration['value'] === '--div--') {
                 continue;
             }
-            if ($backendUser->isAdmin() || $backendUser->check('pagetypes_select', $pageTypeConfiguration[1])) {
-                $wizards['pagetypes_' . $no] = [
-                    'title' => $this->getLanguageService()->sL($pageTypeConfiguration[0]),
-                    'iconIdentifier' => $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$pageTypeConfiguration[1]],
-                    'filter' => sprintf('table=pages doktype=%d', $pageTypeConfiguration[1]),
-                    'disabled' => !in_array($pageTypeConfiguration[1], $usedPageTypes)
+            if ($backendUser->isAdmin() || $backendUser->check('pagetypes_select', $pageTypeConfiguration['value'])) {
+                $wizardItems['pagetypes_' . $no] = [
+                    'title' => $this->getLanguageService()->sL($pageTypeConfiguration['label']),
+                    'iconIdentifier' => $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes'][$pageTypeConfiguration['value']],
+                    'filter' => sprintf('table=pages doktype=%d', $pageTypeConfiguration['value']),
+                    'disabled' => !in_array($pageTypeConfiguration['value'], $usedPageTypes)
                 ];
             }
         }
 
-        return $wizards;
+        return $wizardItems;
     }
 
-    protected function appendRecords(array $wizards): array
+    protected function appendRecords(array $wizardItems): array
     {
-        $wizards['records']['header'] = $this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_tab_records');
+        $wizardItems['records']['header'] = $this->getLanguageService()->sL('LLL:EXT:pagetreefilter/Resources/Private/Language/locallang.xlf:wizard_tab_records');
         $backendUser = $this->getBackendUser();
         foreach($GLOBALS['TCA'] as $tableName => $tableConfiguration) {
             if (($tableConfiguration['ctrl']['hideTable'] ?? false) === false &&
@@ -138,7 +171,7 @@ class WizardController extends NewContentElementController
                     )
                 )
             ) {
-                $wizards['records_' . $tableName] = [
+                $wizardItems['records_' . $tableName] = [
                     'title' => $this->getLanguageService()->sL($tableConfiguration['ctrl']['title']),
                     'iconIdentifier' => $this->iconFactory->mapRecordTypeToIconIdentifier($tableName, []),
                     'filter' => sprintf('table=%s', $tableName),
@@ -147,7 +180,7 @@ class WizardController extends NewContentElementController
             }
         }
 
-        return $wizards;
+        return $wizardItems;
     }
 
     protected function getUsedPageTypes(): array
@@ -159,29 +192,29 @@ class WizardController extends NewContentElementController
             ->select('doktype')
             ->from('pages')
             ->groupBy('doktype')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         return $pageTypes;
     }
 
-    protected function keepOnlyListTypeAndCTypeInDefaultValues(array $wizards): array
+    protected function keepOnlyListTypeAndCTypeInDefaultValues(array $wizardItems): array
     {
-        foreach($wizards as $index => $wizard) {
+        foreach($wizardItems as $index => $wizard) {
             if (!is_array($wizard['tt_content_defValues'] ?? false)) {
                 continue;
             }
             foreach($wizard['tt_content_defValues'] as $columnName => $defaultValue) {
                 if (!in_array($columnName, ['CType', 'list_type'])) {
-                    unset($wizards[$index]['tt_content_defValues'][$columnName]);
+                    unset($wizardItems[$index]['tt_content_defValues'][$columnName]);
                 }
             }
         }
 
-        return $wizards;
+        return $wizardItems;
     }
 
-    protected function disableWizardsHavingNoResults(array $wizards): array
+    protected function disableWizardsHavingNoResults(array $wizardItems): array
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
@@ -190,7 +223,7 @@ class WizardController extends NewContentElementController
             ->select('CType', 'list_type')
             ->from('tt_content')
             ->groupBy('CType', 'list_type')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $generalPluginEnabled = false;
@@ -205,7 +238,7 @@ class WizardController extends NewContentElementController
             }
         }
 
-        foreach ($wizards as $no => $wizard) {
+        foreach ($wizardItems as $no => $wizard) {
             if (!isset($wizard['tt_content_defValues'])) {
                 continue;
             }
@@ -218,27 +251,27 @@ class WizardController extends NewContentElementController
                 $wizard[$no]['disabled'] = $generalPluginEnabled;
             } else {
                 $keyFound = array_search($wizard['tt_content_defValues'], $contentTypes);
-                $wizards[$no]['disabled'] = is_bool($keyFound);
+                $wizardItems[$no]['disabled'] = is_bool($keyFound);
                 unset($contentTypes[$keyFound]);
             }
         }
 
         $this->unknownContentTypes = $contentTypes;
 
-        return $wizards;
+        return $wizardItems;
     }
 
-    protected function appendUnknownContentTypes(array $wizards): array
+    protected function appendUnknownContentTypes(array $wizardItems): array
     {
         if ($this->unknownContentTypes !== [] && $this->getBackendUser()->isAdmin()) {
-            $wizards['unknown']['header'] = '?';
+            $wizardItems['unknown']['header'] = '?';
             foreach ($this->unknownContentTypes as $no => $unknownContentType) {
                 $filterParts = [];
                 foreach ($unknownContentType as $fieldName => $fieldValue) {
                     $filterParts[] = sprintf('%s=%s', $fieldName, $fieldValue);
                 }
 
-                $wizards['unknown_unknown' . $no] = [
+                $wizardItems['unknown_unknown' . $no] = [
                     'title' => $unknownContentType['list_type'] ?? $unknownContentType['CType'],
                     'iconIdentifier' => 'default-not-found',
                     'filter' => sprintf('table=tt_content %s', implode(' ', $filterParts)),
@@ -247,7 +280,7 @@ class WizardController extends NewContentElementController
             }
         }
 
-        return $wizards;
+        return $wizardItems;
     }
 
     protected function areRecordsInTable($tableName): bool
@@ -258,20 +291,10 @@ class WizardController extends NewContentElementController
         $oneRecord = $queryBuilder->select('*')
             ->from($tableName)
             ->setMaxResults(1)
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         return $oneRecord !== false;
-    }
-
-    protected function getFluidTemplateObject(string $templateName): StandaloneView
-    {
-        /** @var StandaloneView $view */
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName('EXT:pagetreefilter/Resources/Private/Templates/Filter/' . $templateName . '.html'));
-        $view->getRequest()->setControllerExtensionName('Pagetreefilter');
-
-        return $view;
     }
 
     protected function createIconIdentifier($iconPath): string
@@ -291,18 +314,14 @@ class WizardController extends NewContentElementController
         return $iconIdentifier;
     }
 
-    /**
-     * EXT:content_defender limits placing content elements in any colPos. The hook needs to be disabled to be able to
-     * see all possible wizard items.
-     */
-    protected function disableContentDefenderHook(): void
-    {
-        unset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms']['db_new_content_el']['wizardItemsHook']['content_defender']);
-    }
-
     public function injectIconRegistry(IconRegistry $iconRegistry)
     {
         $this->iconRegistry = $iconRegistry;
+    }
+
+    public function injectIconFactory(IconFactory $iconFactory)
+    {
+        $this->iconFactory = $iconFactory;
     }
 
     /**

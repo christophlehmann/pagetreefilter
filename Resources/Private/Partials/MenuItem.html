@@ -3,7 +3,7 @@
     xmlns:pagetreefilter="http://typo3.org/ns/Lemming/PageTreeFilter/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
-<div class="t3js-media-new-content-element-wizard media-new-content-element-wizard">
+<div class="pagetreefilter-wizard-item{f:if(condition: '{item.wizardInformation.disabled}', then: ' hide disabled')}">
     <button type="button" class="pagetreefilter-link btn btn-link media p-0 text-start {f:if(condition: '{item.wizardInformation.disabled}', then: ' disabled')}" data-pagetreefilter="{f:if(condition: '{item.filter}', then: '{item.filter}', else: '{pagetreefilter:buildFilter(wizardInformation: \'{item.wizardInformation}\')}')}">
         <f:render section="itemContent" arguments="{_all}" />
     </button>

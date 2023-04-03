@@ -13,13 +13,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository
 {
-    public static $filteredPageUids = [];
+    public static array $filteredPageUids = [];
 
-    public static $filterErrorneous = false;
+    public static bool $filterErrorneous = false;
 
-    protected $filterTable;
+    protected ?string $filterTable;
 
-    protected $filterConstraints = [];
+    protected array $filterConstraints = [];
 
     // @todo: Use predefined list from core. Where is it?
     protected const ALLOWED_TABLE_FIELDS = [
@@ -35,7 +35,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
     {
         if (ConfigurationUtility::isWizardEnabled()) {
             $newSearchFilter = $this->extractConstraints($searchFilter);
-            if ($this->filterTable) {
+            if (!empty($this->filterTable)) {
                 $this->validate();
 
                 if (!self::$filterErrorneous) {

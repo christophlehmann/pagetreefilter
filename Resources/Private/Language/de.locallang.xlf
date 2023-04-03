@@ -7,9 +7,9 @@
 				<source>Pagetree Filter</source>
 				<target>Seitenbaum-Filter</target>
 			</trans-unit>
-			<trans-unit id="wizard_hide_unused_elements" resname="wizard_hide_unused_elements">
-				<source>Hide unused elements</source>
-				<target>Unbenutzte Elemente ausblenden</target>
+			<trans-unit id="wizard_show_unused_elements" resname="wizard_show_unused_elements">
+				<source>Show unused elements</source>
+				<target>Ungenutzte Elemente anzeigen</target>
 			</trans-unit>
 			<trans-unit id="wizard_tab_records" resname="wizard_tab_records">
 				<source>Records</source>

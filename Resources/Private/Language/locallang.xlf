@@ -6,8 +6,8 @@
 			<trans-unit id="wizard_title" resname="wizard_title">
 				<source>Pagetree Filter</source>
 			</trans-unit>
-			<trans-unit id="wizard_hide_unused_elements" resname="wizard_hide_unused_elements">
-				<source>Hide unused elements</source>
+			<trans-unit id="wizard_show_unused_elements" resname="wizard_show_unused_elements">
+				<source>Show unused elements</source>
 			</trans-unit>
 			<trans-unit id="wizard_tab_records" resname="wizard_tab_records">
 				<source>Records</source>

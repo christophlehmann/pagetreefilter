@@ -14,3 +14,31 @@
     background-color: #fafafa;
     padding: 0;
 }
+
+.pagetreefilter-wizard .modal-title {
+    color: #ffffff;
+}
+
+.pagetreefilter-wizard .nav-tabs {
+    padding: 0.75rem 0.75rem 0;
+    background: 0 0;
+}
+
+.pagetreefilter-wizard .panel-body {
+    display: flex;
+    flex-flow: row wrap;
+    padding-top: 0;
+}
+
+.pagetreefilter-wizard .media {
+    margin-top: 15px;
+}
+
+.pagetreefilter-wizard-item {
+    width: 50%;
+}
+
+.pagetreefilter-wizard .panel-tab {
+    border: 0;
+    box-shadow: none;
+}
