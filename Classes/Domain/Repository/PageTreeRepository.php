@@ -70,6 +70,9 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             ->select($field)
             ->from($this->filterTable)
             ->groupBy($field);
+        if ($this->filterTable === 'pages') {
+            $query->addSelect('l10n_parent');
+        }
 
         foreach($this->filterConstraints as $constraint) {
             if (strpos($constraint['value'], '*') !== false) {
@@ -100,6 +103,13 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         }
 
         $rows = $query->execute()->fetchAllAssociative();
+        foreach ($rows as $row) {
+            if ($this->filterTable === 'pages' && $row['l10n_parent'] > 0) {
+                $pageUids[] = $row['l10n_parent'];
+            } else {
+                $pageUids[] = $row[$field];
+            }
+        }
         foreach ($rows as $row) {
             $pageUids[] = $row[$field];
         }
