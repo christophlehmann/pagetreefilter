@@ -179,8 +179,8 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
 
     protected function isNullableColumn(QueryBuilder $queryBuilder, string $column): bool
     {
-        $schemaManager = $queryBuilder->getConnection()->getSchemaManager();
-        return !$schemaManager->listTableDetails($this->filterTable)->getColumn($column)->getNotnull();
+        $schemaManager = $queryBuilder->getConnection()->createSchemaManager();
+        return !$schemaManager->introspectTable($this->filterTable)->getColumn($column)->getNotnull();
     }
 
     protected function getBackendUser(): BackendUserAuthentication
