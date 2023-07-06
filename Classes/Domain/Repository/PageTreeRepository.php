@@ -21,7 +21,6 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
 
     protected array $filterConstraints = [];
 
-    // @todo: Use predefined list from core. Where is it?
     protected const ALLOWED_TABLE_FIELDS = [
         'tt_content:CType',
         'tt_content:list_type',
@@ -89,7 +88,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             } else {
                 if (empty($constraint['value']) && $this->isNullableColumn($queryBuilder, $constraint['field'])) {
                     $query->andWhere(
-                        $queryBuilder->expr()->orX(
+                        $queryBuilder->expr()->or(
                             $queryBuilder->expr()->isNull($constraint['field']),
                             $queryBuilder->expr()->eq($constraint['field'], $queryBuilder->createNamedParameter(''))
                         )
@@ -102,7 +101,7 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
             }
         }
 
-        $rows = $query->execute()->fetchAllAssociative();
+        $rows = $query->executeQuery()->fetchAllAssociative();
         foreach ($rows as $row) {
             if ($this->filterTable === 'pages' && $row['l10n_parent'] > 0) {
                 $pageUids[] = $row['l10n_parent'];
