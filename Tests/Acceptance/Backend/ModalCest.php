@@ -58,7 +58,7 @@ class ModalCest
         $this->openModal();
         $I->click('Page types');
         $I->click('Standard');
-        $I->waitForElement(self::$pageTreeSelector . ' rect.pagetreefilter-highlighted');
+        $I->waitForElement(self::$pageTreeSelector . ' span.node-label');
         $I->see('Startseite', self::$pageTreeSelector);
         $I->makeScreenshot('highlightPagesWithDoktype1_startseiteIsHighlightedNonElse');
         $I->dontSee('Datensätze', self::$pageTreeSelector);

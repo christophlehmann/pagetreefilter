@@ -2,7 +2,7 @@ class PageTreeFilter
 {
     constructor()
     {
-        this.waitForElement('#typo3-pagetree .svg-toolbar__menu').then((element) => {
+        this.waitForElement('#typo3-pagetree .tree-toolbar__menu').then((element) => {
             if (!element.dataset.pageTreeFilterLoaded) {
                 element.dataset.pageTreeFilterLoaded = true;
                 TYPO3.Icons.getIcon('actions-rocket', 'small').then((icon) => {
