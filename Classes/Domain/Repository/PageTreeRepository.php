@@ -149,13 +149,14 @@ class PageTreeRepository extends \TYPO3\CMS\Backend\Tree\Repository\PageTreeRepo
         if (!$backendUser->isAdmin() && !$backendUser->check('tables_select', $this->filterTable)) {
             self::$filterErrorneous = true;
         }
+        /** @var \TYPO3\CMS\Core\Database\Connection $connection */
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($this->filterTable);
         foreach($this->filterConstraints as $constraint) {
             if (!isset($GLOBALS['TCA'][$this->filterTable]['columns'][$constraint['field']])) {
                 // only if admin or field in ALLOWED_FIELDS: field can also be used if not in TCA, but exists in table
                 if (($backendUser->isAdmin() || in_array($constraint['field'], self::ALLOWED_FIELDS))
-                    && in_array($constraint['field'], array_keys($connection->getSchemaManager()->listTableColumns($this->filterTable)))
+                    && in_array($constraint['field'], array_keys($connection->createSchemaManager()->listTableColumns($this->filterTable)))
                 ) {
                     // all good for this constraint, keep going
                     continue;
