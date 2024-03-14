@@ -15,6 +15,14 @@
 				<source>Records</source>
 				<target>Datensätze</target>
 			</trans-unit>
+			<trans-unit id="wizard_tab_unknown" resname="wizard_tab_unknown">
+				<source>Unknown</source>
+				<target>Unbekannte Elemente</target>
+			</trans-unit>
+			<trans-unit id="wizard_tab_unknown_description" resname="wizard_tab_unknown_description">
+				<source>These elements could not be displayed, are typically outdated and should be edited.</source>
+				<target>Diese Elemente können nicht dargestellt werden, sind typischerweise veraltet und sollten bearbeitet werden.</target>
+			</trans-unit>
 			<trans-unit id="wizard_error_message" resname="wizard_error_message">
 				<source>Nothing found. Probably the page id was configured incorrectly.</source>
 				<target>Nichts gefunden. Wahrscheinlich ist die Seiten-Id falsch konfiguriert.</target>

@@ -15,8 +15,11 @@
             <ul class="nav nav-tabs t3js-tabs" role="tablist" id="tabs-{tabsMenuId}" data-store-last-tab="1">
                 <f:for each="{tabsMenuItems}" as="item" iteration="iteration">
                     <li role="presentation" class="t3js-tabmenu-item nav-item">
-                        <a href="#{tabsMenuId}-{iteration.cycle}" class="nav-link {f:if(condition: '{iteration.cycle} == 1', then: ' active')}" aria-controls="{tabsMenuId}-{iteration.cycle}" role="tab" data-bs-toggle="tab">
-                            {item.label}
+                        <a href="#{tabsMenuId}-{iteration.cycle}" class="nav-link {f:if(condition: '{iteration.cycle} == 1', then: ' active')}" aria-controls="{tabsMenuId}-{iteration.cycle}" role="tab" data-bs-toggle="tab" title="{f:if(condition: '{item.label} == \'unknown\'', then: '{f:translate(key: \'wizard_tab_unknown_description\', extensionName: \'pagetreefilter\')}')}">
+                            <f:if condition="{item.label} == 'unknown'">
+                                <f:then><f:translate key="wizard_tab_unknown" extensionName="pagetreefilter"/> <core:icon identifier="actions-exclamation-triangle" alternativeMarkupIdentifier="inline" /></f:then>
+                                <f:else>{item.label}</f:else>
+                            </f:if>
                         </a>
                     </li>
                 </f:for>
