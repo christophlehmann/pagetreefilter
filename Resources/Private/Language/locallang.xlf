@@ -12,6 +12,12 @@
 			<trans-unit id="wizard_tab_records" resname="wizard_tab_records">
 				<source>Records</source>
 			</trans-unit>
+			<trans-unit id="wizard_tab_unknown" resname="wizard_tab_unknown">
+				<source>Unknown elements</source>
+			</trans-unit>
+			<trans-unit id="wizard_tab_unknown_description" resname="wizard_tab_unknown_description">
+				<source>These elements could not be displayed, are typically outdated and should be edited.</source>
+			</trans-unit>
 			<trans-unit id="wizard_error_message" resname="wizard_error_message">
 				<source>Nothing found. Probably the page id was configured incorrectly.</source>
 			</trans-unit>

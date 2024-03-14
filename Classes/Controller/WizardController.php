@@ -264,7 +264,7 @@ class WizardController extends NewContentElementController
     protected function appendUnknownContentTypes(array $wizardItems): array
     {
         if ($this->unknownContentTypes !== [] && $this->getBackendUser()->isAdmin()) {
-            $wizardItems['unknown']['header'] = '?';
+            $wizardItems['unknown']['header'] = 'unknown';
             foreach ($this->unknownContentTypes as $no => $unknownContentType) {
                 $filterParts = [];
                 foreach ($unknownContentType as $fieldName => $fieldValue) {
