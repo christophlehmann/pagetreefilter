@@ -35,6 +35,14 @@
 				<source>Filter tree for content elements and records</source>
 				<target>Baum nach Inhaltselementen und Datensätzen filtern</target>
 			</trans-unit>
+			<trans-unit id="share" resname="share">
+				<source>Share active filter</source>
+				<target>Aktiven Filter teilen</target>
+			</trans-unit>
+			<trans-unit id="copy_to_clipboard" resname="copy_to_clipboard">
+				<source>Copy URL to Clipboard</source>
+				<target>URL in Zwischenablage kopieren</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -1,8 +1,14 @@
 class PageTreeFilter
 {
+    selectorSearchInput = '#typo3-pagetree .search-input';
+    selectorPagetreeComponent = '#typo3-pagetree-tree';
+    selectorPagetreeReady = '#typo3-pagetree-tree .node';
+    selectorToolbarReady = '#typo3-pagetree .svg-toolbar__menu';
+    urlParameter = 'tx_pagetreefilter[filter]';
+
     constructor()
     {
-        this.waitForElement('#typo3-pagetree .svg-toolbar__menu').then((element) => {
+        this.waitForElement(this.selectorToolbarReady).then((element) => {
             if (!element.dataset.pageTreeFilterLoaded) {
                 element.dataset.pageTreeFilterLoaded = true;
                 TYPO3.Icons.getIcon('actions-rocket', 'small').then((icon) => {
@@ -17,6 +23,13 @@ class PageTreeFilter
                         this.openWizard();
                     }
                 });
+
+                const urlParams = new URLSearchParams(window.location.search)
+                if (urlParams.has(this.urlParameter)) {
+                    this.waitForElement(this.selectorPagetreeReady).then(() => {
+                        this.applyFilter(urlParams.get(this.urlParameter));
+                    });
+                }
             }
         })
     }
@@ -43,7 +56,8 @@ class PageTreeFilter
     }
 
     openWizard = () => {
-        TYPO3.Modal.advanced({
+        const currentFilter = document.querySelector(this.selectorSearchInput).value;
+        const wizard = TYPO3.Modal.advanced({
             size: 'medium',
             type: 'ajax',
             title: TYPO3.lang.pagetreefilter_wizard_title,
@@ -62,6 +76,18 @@ class PageTreeFilter
             additionalCssClasses: ['pagetreefilter-wizard'],
             buttons: [
                 {
+                    text: TYPO3.lang.pagetreefilter_share,
+                    name: 'pagetreefilter-wizard-share',
+                    icon: 'actions-share-alt',
+                    active: false,
+                    btnClass: 'btn-default' + (currentFilter ? '' : ' disabled'),
+                    trigger: (event, modal) => {
+                        const shareUrl = this.prepareShareUrl();
+                        TYPO3.Modal.dismiss();
+                        this.openShareModal();
+                    }
+                },
+                {
                     text: TYPO3.lang.pagetreefilter_button_text_show_unused,
                     name: 'pagetreefilter-wizard-show-unused',
                     icon: 'actions-toggle-off',
@@ -73,6 +99,33 @@ class PageTreeFilter
                 }
             ]
         });
+    }
+
+    openShareModal = () => {
+        TYPO3.Modal.confirm(
+            TYPO3.lang.pagetreefilter_share,
+            this.prepareShareUrl(),
+            'info',
+            [
+                {
+                    text: TYPO3.lang.pagetreefilter_copy_to_clipboard,
+                    name: 'pagetreefilter-ok',
+                    icon: 'actions-link',
+                    active: true,
+                    btnClass: 'btn-primary' + (navigator.clipboard ? '' : ' disabled'),
+                    trigger: (event, modal) => {
+                        navigator.clipboard.writeText(this.prepareShareUrl());
+                        TYPO3.Modal.dismiss();
+                    }
+                }
+            ]
+        );
+    }
+
+    prepareShareUrl = () => {
+        const url = new URL(window.location.origin + "/typo3/module/web/layout");
+        url.searchParams.set(this.urlParameter, document.querySelector(this.selectorSearchInput).value);
+        return url.toString();
     }
 
     toggleHideUnusedElements = (modal) => {
@@ -130,8 +183,8 @@ class PageTreeFilter
     }
 
     applyFilter = (filter) => {
-        document.querySelector('#typo3-pagetree .search-input').value = filter;
-        document.querySelector('#typo3-pagetree-tree').filter(filter)
+        document.querySelector(this.selectorSearchInput).value = filter;
+        document.querySelector(this.selectorPagetreeComponent).filter(filter)
     }
 }
 
