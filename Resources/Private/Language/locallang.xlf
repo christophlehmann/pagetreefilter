@@ -30,6 +30,12 @@
 			<trans-unit id="result_item_label" resname="result_item_label">
 				<source>Pagetree Filter result</source>
 			</trans-unit>
+			<trans-unit id="share" resname="share">
+				<source>Share active filter</source>
+			</trans-unit>
+			<trans-unit id="copy_to_clipboard" resname="copy_to_clipboard">
+				<source>Copy URL to Clipboard</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

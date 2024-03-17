@@ -25,6 +25,8 @@ final class PageRendererRenderPreProcess
                 'pagetreefilter_wizard_title' => $this->getLanguageService()->sL($labelPrefix . 'wizard_title'),
                 'pagetreefilter_button_title' => $this->getLanguageService()->sL($labelPrefix . 'filter_button_title'),
                 'pagetreefilter_button_text_show_unused' => $this->getLanguageService()->sL($labelPrefix . 'wizard_show_unused_elements'),
+                'pagetreefilter_share' => $this->getLanguageService()->sL($labelPrefix . 'share'),
+                'pagetreefilter_copy_to_clipboard' => $this->getLanguageService()->sL($labelPrefix . 'copy_to_clipboard'),
             ]);
         }
     }
