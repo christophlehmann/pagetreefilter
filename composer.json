@@ -36,7 +36,7 @@
             "rm -rf .github"
         ],
         "test:acceptance": [
-            "./Build/Scripts/runTests.sh -p 8.1 -s acceptance"
+            "./Build/Scripts/runTests.sh -p 8.2 -s acceptance"
         ],
         "phpstan": [
             ".Build/bin/phpstan analyze -c Build/phpstan.neon"
@@ -58,6 +58,6 @@
         "codeception/module-webdriver": "^4.0",
         "phpstan/phpstan": "^1.10",
         "sbuerk/typo3-cmscomposerinstallers-testingframework-bridge": "^0.1",
-        "typo3/testing-framework": "^7@dev"
+        "typo3/testing-framework": "^8@dev"
     }
 }
