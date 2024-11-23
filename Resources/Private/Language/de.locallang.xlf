@@ -35,6 +35,10 @@
 				<source>Filter tree for content elements and records</source>
 				<target>Baum nach Inhaltselementen und Datensätzen filtern</target>
 			</trans-unit>
+			<trans-unit id="result_item_label" resname="result_item_label">
+				<source>Pagetree Filter result</source>
+				<target>Ergebnis des Seitenbaum-Filters</target>
+			</trans-unit>
 			<trans-unit id="share" resname="share">
 				<source>Share active filter</source>
 				<target>Aktiven Filter teilen</target>

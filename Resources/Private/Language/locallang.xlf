@@ -27,6 +27,9 @@
 			<trans-unit id="filter_button_title" resname="filter_button_title">
 				<source>Filter tree for content elements and records</source>
 			</trans-unit>
+			<trans-unit id="result_item_label" resname="result_item_label">
+				<source>Pagetree Filter result</source>
+			</trans-unit>
 			<trans-unit id="share" resname="share">
 				<source>Share active filter</source>
 			</trans-unit>

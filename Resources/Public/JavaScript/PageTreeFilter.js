@@ -3,7 +3,7 @@ class PageTreeFilter
     selectorSearchInput = '#typo3-pagetree .search-input';
     selectorPagetreeComponent = '#typo3-pagetree-tree';
     selectorPagetreeReady = '#typo3-pagetree-tree .node';
-    selectorToolbarReady = '#typo3-pagetree .svg-toolbar__menu';
+    selectorToolbarReady = '#typo3-pagetree .tree-toolbar__menu';
     urlParameter = 'tx_pagetreefilter[filter]';
 
     constructor()
