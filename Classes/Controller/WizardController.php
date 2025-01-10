@@ -12,14 +12,11 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Http\HtmlResponse;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class WizardController extends NewContentElementController
 {
@@ -83,7 +80,7 @@ class WizardController extends NewContentElementController
                 $viewVariables = [
                     'wizardInformation' => $wizardItem,
                     'wizardKey' => $wizardKey,
-                    'icon' => $this->iconFactory->getIcon(($wizardItem['iconIdentifier'] ?? ''), Icon::SIZE_MEDIUM, ($wizardItem['iconOverlay'] ?? ''))->render(),
+                    'icon' => $this->iconFactory->getIcon(($wizardItem['iconIdentifier'] ?? ''), overlayIdentifier:($wizardItem['iconOverlay'] ?? ''))->render(),
                 ];
                 $menuItems[$key]['contentItems'][] = $viewVariables;
             }
