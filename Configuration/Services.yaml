@@ -3,9 +3,31 @@ services:
     autowire: true
     autoconfigure: true
     public: false
-
   Lemming\PageTreeFilter\:
     resource: '../Classes/*'
-
   Lemming\PageTreeFilter\Controller\WizardController:
     public: true
+  Lemming\PageTreeFilter\EventListener\PageContentPreviewEventListener:
+    tags:
+      -
+        name: event.listener
+        identifier: lemming/page-tree-filter/page-content-preview-rendering-event-listener
+        event: TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent
+  Lemming\PageTreeFilter\EventListener\RecordListEventListener:
+    tags:
+      -
+        name: event.listener
+        identifier: lemming/page-tree-filter/modify-database-query-for-record-listing-event-listener
+        event: TYPO3\CMS\Backend\View\Event\ModifyDatabaseQueryForRecordListingEvent
+  Lemming\PageTreeFilter\EventListener\AfterPageTreeItemsPreparedEventListener:
+    tags:
+      -
+        name: event.listener
+        identifier: lemming/page-tree-filter/after-page-tree-items-prepared-event-listener
+        event: TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent
+  Lemming\PageTreeFilter\EventListener\RenderAdditionalContentToRecordListEventListener:
+    tags:
+      -
+        name: event.listener
+        identifier: lemming/page-tree-filter/render-additional-content-to-record-list-event-listener
+        event: TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent

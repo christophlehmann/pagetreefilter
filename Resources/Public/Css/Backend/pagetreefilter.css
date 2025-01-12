@@ -25,3 +25,7 @@
     border: 0;
     box-shadow: none;
 }
+
+.t3-page-ce-element:has(.t3-page-ce-body > .element-preview > .element-preview-content > .tx-pagetreefilter-highlight-ce) {
+    border: 10px solid #6daae0;
+}
