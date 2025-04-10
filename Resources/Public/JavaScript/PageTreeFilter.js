@@ -3,7 +3,7 @@ class PageTreeFilter
     selectorSearchInput = '#typo3-pagetree .search-input';
     selectorPagetreeComponent = '#typo3-pagetree-tree';
     selectorPagetreeReady = '#typo3-pagetree-tree .node';
-    selectorToolbarReady = '#typo3-pagetree .tree-toolbar__menu';
+    selectorToolbarReady = 'typo3-backend-navigation-component-pagetree-toolbar .tree-toolbar__submenu ul.dropdown-menu';
     urlParameter = 'tx_pagetreefilter[filter]';
 
     constructor()
@@ -11,18 +11,13 @@ class PageTreeFilter
         this.waitForElement(this.selectorToolbarReady).then((element) => {
             if (!element.dataset.pageTreeFilterLoaded) {
                 element.dataset.pageTreeFilterLoaded = true;
-                TYPO3.Icons.getIcon('actions-rocket', 'small').then((icon) => {
-                    element.insertAdjacentHTML('beforeend',
-                        '<button id="pagetreefilter" class="btn btn-default btn-borderless btn-sm" title="' + TYPO3.lang.pagetreefilter_button_title + '">' +
-                        '<span class="icon icon-size-small icon-state-default">' +
-                        '<span class="icon-markup">' + icon + '</span>' +
-                        '</span>' +
-                        '</button>'
-                    );
-                    document.querySelector('#pagetreefilter').onclick = () => {
-                        this.openWizard();
-                    }
-                });
+                element.insertAdjacentHTML(
+                    'afterbegin',
+                    '<li><button id="pagetreefilter" class="dropdown-item"><span class="dropdown-item-columns"> <span class="dropdown-item-column dropdown-item-column-icon" aria-hidden="true"><typo3-backend-icon identifier="actions-rocket" size="small"></typo3-backend-icon> </span> <span class="dropdown-item-column dropdown-item-column-title">' + TYPO3.lang.pagetreefilter_button_title + ' </span> </span></button></li>'
+                );
+                document.querySelector('#pagetreefilter').onclick = () => {
+                    this.openWizard();
+                }
 
                 const urlParams = new URLSearchParams(window.location.search)
                 if (urlParams.has(this.urlParameter)) {
