@@ -2,29 +2,18 @@
 
 namespace Lemming\PageTreeFilter\ViewHelpers;
 
-use Lemming\PageTreeFilter\Utility\ConfigurationUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 class BuildFilterViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('wizardInformation', 'array', '', true);
     }
 
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $wizardInformation = $arguments['wizardInformation'];
+    public function render() {
+        $wizardInformation = $this->arguments['wizardInformation'];
         if (isset($wizardInformation['filter'])) {
             return $wizardInformation['filter'];
         }
